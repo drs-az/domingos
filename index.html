@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Your Name | Personal Webpage</title>
+  <style>
+    /* Basic Reset and Global Styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html, body {
+      font-family: 'Helvetica', sans-serif;
+      background-color: #f7f7f7;
+      color: #333;
+      scroll-behavior: smooth;
+      line-height: 1.6;
+    }
+
+    /* Fixed Navigation Bar */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(8px);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: flex-end;
+      gap: 1.5rem;
+      z-index: 1000;
+      font-size: 0.9rem;
+    }
+    nav a {
+      color: #333;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+    nav a:hover {
+      color: #007BFF;
+    }
+
+    /* Header (Landing Section) */
+    header {
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #fff;
+      text-align: center;
+      padding: 0 2rem;
+    }
+    .intro h1 {
+      font-size: 3rem;
+      margin-bottom: 0.5rem;
+    }
+    .intro p {
+      font-size: 1.2rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Content Sections */
+    section {
+      padding: 4rem 2rem;
+      min-height: 100vh;
+    }
+    section:nth-of-type(odd) {
+      background: #f7f7f7;
+    }
+    section:nth-of-type(even) {
+      background: #fff;
+    }
+    h2 {
+      text-align: center;
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+    .content {
+      max-width: 800px;
+      margin: 0 auto;
+      line-height: 1.8;
+    }
+    .content ul {
+      margin-top: 1rem;
+      list-style: none;
+      padding-left: 0;
+    }
+    .content li {
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #ddd;
+    }
+
+    /* Footer */
+    footer {
+      padding: 2rem;
+      text-align: center;
+      background: #222;
+      color: #fff;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+      nav {
+        justify-content: center;
+      }
+      .intro h1 {
+        font-size: 2.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="#about">About</a>
+    <a href="#projects">Projects</a>
+    <a href="#contact">Contact</a>
+  </nav>
+  
+  <header>
+    <div class="intro">
+      <h1>Your Name</h1>
+      <p>
+        Welcome to my personal space online. I blend creativity and clarity to share my professional journey and personal passions.
+      </p>
+    </div>
+  </header>
+
+  <section id="about">
+    <h2>About Me</h2>
+    <div class="content">
+      <p>
+        Hello, I'm [Your Name]. I specialize in innovative strategy, professional consulting, and thoughtful design. I believe that a minimalist approach not only declutters the space but also the mind. Here, you’ll find insights into my experiences, projects, and philosophies.
+      </p>
+    </div>
+  </section>
+
+  <section id="projects">
+    <h2>Projects</h2>
+    <div class="content">
+      <p>A snapshot of my recent work:</p>
+      <ul>
+        <li><strong>Project One:</strong> Crafting modern financial strategies with clarity and precision.</li>
+        <li><strong>Project Two:</strong> Merging technology and real estate for innovative solutions.</li>
+        <li><strong>Project Three:</strong> Redefining legal and consulting practices with a minimalist touch.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="contact">
+    <h2>Contact</h2>
+    <div class="content">
+      <p>
+        Interested in a conversation or collaboration? Reach out via email at
+        <a href="mailto:your.email@example.com">your.email@example.com</a>, or connect with me on social media.
+      </p>
+    </div>
+  </section>
+
+  <footer>
+    <p>Designed with thought and care. © 2025 Your Name.</p>
+  </footer>
+</body>
+</html>
