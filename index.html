@@ -3,112 +3,200 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Your Name | Personal Webpage</title>
+  <title>Your Name | Flashy Personal Webpage</title>
   <style>
-    /* Basic Reset and Global Styles */
+    /* Reset and Global Styles */
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
-    html, body {
-      font-family: 'Helvetica', sans-serif;
-      background-color: #f7f7f7;
-      color: #333;
+    body {
+      font-family: 'Helvetica Neue', Helvetica, sans-serif;
+      background: #111;
+      color: #fff;
+      overflow-x: hidden;
       scroll-behavior: smooth;
-      line-height: 1.6;
     }
 
-    /* Fixed Navigation Bar */
+    /* Animated Gradient Background for Header */
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Navigation Bar */
     nav {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
-      background: rgba(255, 255, 255, 0.85);
-      backdrop-filter: blur(8px);
       padding: 1rem 2rem;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(10px);
       display: flex;
       justify-content: flex-end;
-      gap: 1.5rem;
       z-index: 1000;
-      font-size: 0.9rem;
     }
     nav a {
-      color: #333;
+      margin-left: 2rem;
+      color: #fff;
       text-decoration: none;
+      font-weight: bold;
+      position: relative;
       transition: color 0.3s ease;
     }
+    /* Underline animation for nav links */
+    nav a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -5px;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(45deg, #ff416c, #ff4b2b);
+      transform: scaleX(0);
+      transform-origin: right;
+      transition: transform 0.3s ease;
+    }
     nav a:hover {
-      color: #007BFF;
+      color: #ff4b2b;
+    }
+    nav a:hover::after {
+      transform: scaleX(1);
+      transform-origin: left;
     }
 
     /* Header (Landing Section) */
     header {
       height: 100vh;
       display: flex;
-      justify-content: center;
       align-items: center;
-      background: #fff;
+      justify-content: center;
+      background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      position: relative;
       text-align: center;
       padding: 0 2rem;
     }
     .intro h1 {
-      font-size: 3rem;
+      font-size: 4rem;
       margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
     }
     .intro p {
-      font-size: 1.2rem;
-      max-width: 600px;
+      font-size: 1.5rem;
+      max-width: 700px;
       margin: 0 auto;
+      text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.3);
     }
 
-    /* Content Sections */
+    /* Section Styling */
     section {
-      padding: 4rem 2rem;
-      min-height: 100vh;
+      padding: 6rem 2rem;
+      min-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.5s ease;
     }
     section:nth-of-type(odd) {
-      background: #f7f7f7;
+      background: #1a1a1a;
     }
     section:nth-of-type(even) {
-      background: #fff;
+      background: #222;
     }
     h2 {
-      text-align: center;
-      font-size: 2rem;
+      font-size: 2.8rem;
       margin-bottom: 1rem;
+      position: relative;
+      text-transform: uppercase;
+      overflow: hidden;
+    }
+    /* Animated underline for section titles */
+    h2::after {
+      content: "";
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 3px;
+      background: linear-gradient(45deg, #ff416c, #ff4b2b);
+      transition: width 0.5s ease;
+    }
+    h2:hover::after {
+      width: 50%;
     }
     .content {
       max-width: 800px;
       margin: 0 auto;
+      font-size: 1.2rem;
       line-height: 1.8;
     }
+    .content p {
+      margin-bottom: 1.5rem;
+    }
     .content ul {
-      margin-top: 1rem;
       list-style: none;
-      padding-left: 0;
+      padding: 0;
     }
     .content li {
-      padding: 0.5rem 0;
-      border-bottom: 1px solid #ddd;
+      padding: 0.8rem;
+      margin-bottom: 0.5rem;
+      background: rgba(255, 75, 43, 0.1);
+      border-left: 3px solid #ff4b2b;
+      transition: transform 0.3s ease, background-color 0.3s ease;
+    }
+    .content li:hover {
+      transform: translateX(10px);
+      background: rgba(255, 75, 43, 0.2);
+    }
+
+    /* Contact Section Link Styling */
+    .content a {
+      color: #ff4b2b;
+      text-decoration: none;
+      font-weight: bold;
+      border-bottom: 2px solid transparent;
+      transition: border-color 0.3s ease;
+    }
+    .content a:hover {
+      border-color: #ff4b2b;
     }
 
     /* Footer */
     footer {
       padding: 2rem;
       text-align: center;
-      background: #222;
-      color: #fff;
+      background: #000;
+      color: #aaa;
+      font-size: 0.9rem;
+    }
+    footer p {
+      margin-bottom: 0.5rem;
     }
 
     /* Responsive Adjustments */
     @media (max-width: 768px) {
+      .intro h1 {
+        font-size: 3rem;
+      }
+      .intro p {
+        font-size: 1.2rem;
+      }
       nav {
         justify-content: center;
       }
-      .intro h1 {
-        font-size: 2.5rem;
+      nav a {
+        margin-left: 1rem;
+      }
+      h2 {
+        font-size: 2rem;
       }
     }
   </style>
@@ -119,12 +207,12 @@
     <a href="#projects">Projects</a>
     <a href="#contact">Contact</a>
   </nav>
-  
+
   <header>
     <div class="intro">
       <h1>Your Name</h1>
       <p>
-        Welcome to my personal space online. I blend creativity and clarity to share my professional journey and personal passions.
+        Welcome to my digital canvas where innovation meets brilliance. Explore the fusion of art, strategy, and technology.
       </p>
     </div>
   </header>
@@ -133,7 +221,10 @@
     <h2>About Me</h2>
     <div class="content">
       <p>
-        Hello, I'm [Your Name]. I specialize in innovative strategy, professional consulting, and thoughtful design. I believe that a minimalist approach not only declutters the space but also the mind. Here, you’ll find insights into my experiences, projects, and philosophies.
+        I’m [Your Name], a creative professional on a journey to redefine boundaries and inspire change. My work is driven by passion and the relentless pursuit of perfection.
+      </p>
+      <p>
+        Combining creative insights with technical expertise, I navigate through dynamic challenges to craft captivating experiences.
       </p>
     </div>
   </section>
@@ -141,11 +232,11 @@
   <section id="projects">
     <h2>Projects</h2>
     <div class="content">
-      <p>A snapshot of my recent work:</p>
+      <p>Here are some of my recent adventures:</p>
       <ul>
-        <li><strong>Project One:</strong> Crafting modern financial strategies with clarity and precision.</li>
-        <li><strong>Project Two:</strong> Merging technology and real estate for innovative solutions.</li>
-        <li><strong>Project Three:</strong> Redefining legal and consulting practices with a minimalist touch.</li>
+        <li><strong>Project Alpha:</strong> Revolutionizing digital landscapes with cutting-edge design and technology.</li>
+        <li><strong>Project Beta:</strong> Innovating financial solutions that blend art and science.</li>
+        <li><strong>Project Gamma:</strong> Crafting immersive experiences that captivate and inspire.</li>
       </ul>
     </div>
   </section>
@@ -154,14 +245,15 @@
     <h2>Contact</h2>
     <div class="content">
       <p>
-        Interested in a conversation or collaboration? Reach out via email at
-        <a href="mailto:your.email@example.com">your.email@example.com</a>, or connect with me on social media.
+        Interested in collaborating or just want to say hello? Drop me a line at
+        <a href="mailto:your.email@example.com">your.email@example.com</a> or connect with me on social media.
       </p>
     </div>
   </section>
 
   <footer>
-    <p>Designed with thought and care. © 2025 Your Name.</p>
+    <p>Designed with passion and flair. © 2025 Your Name.</p>
+    <p>All rights reserved.</p>
   </footer>
 </body>
 </html>
