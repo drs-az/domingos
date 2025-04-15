@@ -1,259 +1,417 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Domingos Santos</title>
+  <meta charset="UTF-8">
+  <title>HP12C Financial Calculator</title>
   <style>
-    /* Reset and Global Styles */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    /* Overall Body and Container */
     body {
-      font-family: 'Helvetica Neue', Helvetica, sans-serif;
-      background: #111;
-      color: #fff;
-      overflow-x: hidden;
-      scroll-behavior: smooth;
-    }
-
-    /* Animated Gradient Background for Header */
-    @keyframes gradientBG {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-
-    /* Navigation Bar */
-    nav {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      padding: 1rem 2rem;
-      background: rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(10px);
-      display: flex;
-      justify-content: flex-end;
-      z-index: 1000;
-    }
-    nav a {
-      margin-left: 2rem;
-      color: #fff;
-      text-decoration: none;
-      font-weight: bold;
-      position: relative;
-      transition: color 0.3s ease;
-    }
-    /* Underline animation for nav links */
-    nav a::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      bottom: -5px;
-      width: 100%;
-      height: 2px;
-      background: linear-gradient(45deg, #ff416c, #ff4b2b);
-      transform: scaleX(0);
-      transform-origin: right;
-      transition: transform 0.3s ease;
-    }
-    nav a:hover {
-      color: #ff4b2b;
-    }
-    nav a:hover::after {
-      transform: scaleX(1);
-      transform-origin: left;
-    }
-
-    /* Header (Landing Section) */
-    header {
+      background-color: #444;
+      margin: 0;
       height: 100vh;
       display: flex;
-      align-items: center;
       justify-content: center;
-      background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
-      background-size: 400% 400%;
-      animation: gradientBG 15s ease infinite;
-      position: relative;
+      align-items: center;
+      font-family: Arial, sans-serif;
+    }
+    #calculator-container {
+      background: #333;
+      border: 2px solid #000;
+      border-radius: 15px;
+      padding: 20px;
+      width: 350px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    }
+    h1 {
       text-align: center;
-      padding: 0 2rem;
+      color: #fff;
+      margin-bottom: 10px;
+      font-size: 20px;
     }
-    .intro h1 {
-      font-size: 4rem;
-      margin-bottom: 0.5rem;
-      text-transform: uppercase;
-      text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+    /* Mode (Tab) Buttons */
+    .tabs {
+      text-align: center;
+      margin-bottom: 20px;
     }
-    .intro p {
-      font-size: 1.5rem;
-      max-width: 700px;
-      margin: 0 auto;
-      text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.3);
+    .tabs button {
+      background: #777;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      padding: 8px 16px;
+      margin: 0 5px;
+      cursor: pointer;
+      font-size: 14px;
+      box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
     }
-
-    /* Section Styling */
-    section {
-      padding: 6rem 2rem;
-      min-height: 80vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      transition: background-color 0.5s ease;
+    .tabs button.active {
+      background: #aaa;
+      box-shadow: none;
     }
-    section:nth-of-type(odd) {
-      background: #1a1a1a;
-    }
-    section:nth-of-type(even) {
+    /* Section Containers */
+    .section {
       background: #222;
+      padding: 15px;
+      border: 1px solid #000;
+      border-radius: 10px;
+      margin-bottom: 20px;
     }
-    h2 {
-      font-size: 2.8rem;
-      margin-bottom: 1rem;
-      position: relative;
-      text-transform: uppercase;
-      overflow: hidden;
-    }
-    /* Animated underline for section titles */
-    h2::after {
-      content: "";
-      position: absolute;
-      bottom: -10px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 0;
-      height: 3px;
-      background: linear-gradient(45deg, #ff416c, #ff4b2b);
-      transition: width 0.5s ease;
-    }
-    h2:hover::after {
-      width: 50%;
-    }
-    .content {
-      max-width: 800px;
-      margin: 0 auto;
-      font-size: 1.2rem;
-      line-height: 1.8;
-    }
-    .content p {
-      margin-bottom: 1.5rem;
-    }
-    .content ul {
-      list-style: none;
-      padding: 0;
-    }
-    .content li {
-      padding: 0.8rem;
-      margin-bottom: 0.5rem;
-      background: rgba(255, 75, 43, 0.1);
-      border-left: 3px solid #ff4b2b;
-      transition: transform 0.3s ease, background-color 0.3s ease;
-    }
-    .content li:hover {
-      transform: translateX(10px);
-      background: rgba(255, 75, 43, 0.2);
-    }
-
-    /* Contact Section Link Styling */
-    .content a {
-      color: #ff4b2b;
-      text-decoration: none;
-      font-weight: bold;
-      border-bottom: 2px solid transparent;
-      transition: border-color 0.3s ease;
-    }
-    .content a:hover {
-      border-color: #ff4b2b;
-    }
-
-    /* Footer */
-    footer {
-      padding: 2rem;
-      text-align: center;
+    /* HP12C–Style Display */
+    #rpnDisplay {
       background: #000;
-      color: #aaa;
-      font-size: 0.9rem;
+      color: #0f0;
+      font-family: 'Digital-7', 'Courier New', monospace;
+      font-size: 26px;
+      text-align: right;
+      padding: 10px;
+      border: 2px inset #555;
+      border-radius: 5px;
+      margin-bottom: 10px;
+      min-height: 40px;
     }
-    footer p {
-      margin-bottom: 0.5rem;
+    /* RPN Keypad styling */
+    .rpn-buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
     }
-
-    /* Responsive Adjustments */
-    @media (max-width: 768px) {
-      .intro h1 {
-        font-size: 3rem;
-      }
-      .intro p {
-        font-size: 1.2rem;
-      }
-      nav {
-        justify-content: center;
-      }
-      nav a {
-        margin-left: 1rem;
-      }
-      h2 {
-        font-size: 2rem;
-      }
+    .rpn-buttons button {
+      background: linear-gradient(to bottom, #e6e6e6, #ccc);
+      border: 1px solid #999;
+      border-radius: 8px;
+      font-size: 18px;
+      padding: 15px 0;
+      cursor: pointer;
+      box-shadow: 0 2px #666;
+      transition: all 0.1s ease-in-out;
+    }
+    .rpn-buttons button:active {
+      box-shadow: 0 1px #666;
+      transform: translateY(1px);
+    }
+    /* Stack display */
+    #stackDisplay {
+      color: #fff;
+      font-size: 14px;
+      margin-top: 10px;
+      max-height: 100px;
+      overflow-y: auto;
+    }
+    /* TVM Calculator Inputs */
+    .tvm-inputs label {
+      color: #fff;
+      display: block;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+    .tvm-inputs input, .tvm-inputs select {
+      width: 100%;
+      padding: 8px;
+      font-size: 14px;
+      border-radius: 5px;
+      border: 1px solid #777;
+      margin-top: 5px;
+    }
+    .tvm-calc button {
+      display: block;
+      width: 100%;
+      background: linear-gradient(to bottom, #e6e6e6, #ccc);
+      border: 1px solid #999;
+      border-radius: 8px;
+      font-size: 16px;
+      padding: 10px;
+      cursor: pointer;
+      margin-top: 15px;
+      box-shadow: 0 2px #666;
+      transition: all 0.1s ease-in-out;
+    }
+    .tvm-calc button:active {
+      box-shadow: 0 1px #666;
+      transform: translateY(1px);
     }
   </style>
 </head>
 <body>
-  <nav>
-    <a href="#about">About</a>
-    <a href="#projects">Projects</a>
-    <a href="#contact">Contact</a>
-  </nav>
-
-  <header>
-    <div class="intro">
-      <h1>Domingos Santos</h1>
-      <p>
-        Welcome to my webpage where I share what I'm working on and thinking about.
-      </p>
+<div id="calculator-container">
+  <h1>HP12C Financial Calculator</h1>
+  <div class="tabs">
+    <button id="rpnTab" class="active" onclick="showSection('rpn')">RPN</button>
+    <button id="tvmTab" onclick="showSection('tvm')">TVM</button>
+  </div>
+  
+  <!-- RPN Calculator Section -->
+  <div id="rpnSection" class="section">
+    <div id="rpnDisplay">0</div>
+    <div class="rpn-buttons">
+      <!-- Row 1 -->
+      <button onclick="appendDigit('7')">7</button>
+      <button onclick="appendDigit('8')">8</button>
+      <button onclick="appendDigit('9')">9</button>
+      <button onclick="operate('/')">/</button>
+      <!-- Row 2 -->
+      <button onclick="appendDigit('4')">4</button>
+      <button onclick="appendDigit('5')">5</button>
+      <button onclick="appendDigit('6')">6</button>
+      <button onclick="operate('*')">*</button>
+      <!-- Row 3 -->
+      <button onclick="appendDigit('1')">1</button>
+      <button onclick="appendDigit('2')">2</button>
+      <button onclick="appendDigit('3')">3</button>
+      <button onclick="operate('-')">-</button>
+      <!-- Row 4 -->
+      <button onclick="appendDigit('0')">0</button>
+      <button onclick="appendDigit('.')">.</button>
+      <button onclick="enter()">Enter</button>
+      <button onclick="operate('+')">+</button>
+      <!-- Row 5 (Additional Keys) -->
+      <button onclick="changeSign()">CHS</button>
+      <button onclick="clearAll()">C</button>
     </div>
-  </header>
-
-  <section id="about">
-    <h2>About Me</h2>
-    <div class="content">
-      <p>
-        I’m [Your Name], a creative professional on a journey to redefine boundaries and inspire change. My work is driven by passion and the relentless pursuit of perfection.
-      </p>
-      <p>
-        Combining creative insights with technical expertise, I navigate through dynamic challenges to craft captivating experiences.
-      </p>
+    <div id="stackDisplay"></div>
+  </div>
+  
+  <!-- TVM Calculator Section -->
+  <div id="tvmSection" class="section" style="display:none;">
+    <div class="tvm-inputs">
+      <label for="n">N (Number of Periods):</label>
+      <input type="number" id="n" placeholder="Enter N" step="any">
+      
+      <label for="iy">I/Y (Interest Rate per period, in decimal):</label>
+      <input type="number" id="iy" placeholder="Enter I/Y" step="any">
+      
+      <label for="pv">PV (Present Value):</label>
+      <input type="number" id="pv" placeholder="Enter PV" step="any">
+      
+      <label for="pmt">PMT (Payment):</label>
+      <input type="number" id="pmt" placeholder="Enter PMT" step="any">
+      
+      <label for="fv">FV (Future Value):</label>
+      <input type="number" id="fv" placeholder="Enter FV" step="any">
+      
+      <label for="solveFor">Solve For:</label>
+      <select id="solveFor">
+        <option value="fv">Future Value (FV)</option>
+        <option value="pv">Present Value (PV)</option>
+        <option value="pmt">Payment (PMT)</option>
+        <option value="iy">Interest per period (I/Y)</option>
+        <option value="n">Number of Periods (N)</option>
+      </select>
     </div>
-  </section>
-
-  <section id="projects">
-    <h2>Projects</h2>
-    <div class="content">
-      <p>Here are some of my recent adventures:</p>
-      <ul>
-        <li><strong>Project Alpha:</strong> Revolutionizing digital landscapes with cutting-edge design and technology.</li>
-        <li><strong>Project Beta:</strong> Innovating financial solutions that blend art and science.</li>
-        <li><strong>Project Gamma:</strong> Crafting immersive experiences that captivate and inspire.</li>
-      </ul>
+    <div class="tvm-calc">
+      <button onclick="calculateTVM()">Calculate</button>
     </div>
-  </section>
+  </div>
+</div>
 
-  <section id="contact">
-    <h2>Contact</h2>
-    <div class="content">
-      <p>
-        Interested in collaborating or just want to say hello? Drop me a line at
-        <a href="mailto:your.email@example.com">your.email@example.com</a> or connect with me on social media.
-      </p>
-    </div>
-  </section>
-
-  <footer>
-    <p>Designed with passion and flair. © 2025 Your Name.</p>
-    <p>All rights reserved.</p>
-  </footer>
+<script>
+  /***********************
+   * Section Switching
+   ***********************/
+  function showSection(section) {
+    if (section === 'rpn') {
+      document.getElementById('rpnSection').style.display = 'block';
+      document.getElementById('tvmSection').style.display = 'none';
+      document.getElementById('rpnTab').classList.add('active');
+      document.getElementById('tvmTab').classList.remove('active');
+    } else if (section === 'tvm') {
+      document.getElementById('rpnSection').style.display = 'none';
+      document.getElementById('tvmSection').style.display = 'block';
+      document.getElementById('tvmTab').classList.add('active');
+      document.getElementById('rpnTab').classList.remove('active');
+    }
+  }
+  
+  /***********************
+   * RPN Calculator Code
+   ***********************/
+  let stack = [];
+  let currentInput = "";
+  
+  function updateRPNDisplay() {
+    const display = document.getElementById('rpnDisplay');
+    display.textContent = currentInput !== "" ? currentInput : (stack.length > 0 ? stack[stack.length - 1] : "0");
+    
+    const stackDiv = document.getElementById('stackDisplay');
+    stackDiv.innerHTML = "";
+    for (let i = stack.length - 1; i >= 0; i--) {
+      const div = document.createElement('div');
+      div.textContent = (stack.length - i) + ": " + stack[i];
+      stackDiv.appendChild(div);
+    }
+  }
+  
+  function appendDigit(digit) {
+    currentInput += digit;
+    updateRPNDisplay();
+  }
+  
+  function enter() {
+    if (currentInput !== "") {
+      let value = parseFloat(currentInput);
+      if (!isNaN(value)) {
+        stack.push(value);
+      }
+      currentInput = "";
+      updateRPNDisplay();
+    }
+  }
+  
+  function operate(op) {
+    if (currentInput !== "") {
+      enter();
+    }
+    if (stack.length < 2) {
+      alert("Not enough values in the stack.");
+      return;
+    }
+    let b = stack.pop();
+    let a = stack.pop();
+    let result;
+    switch (op) {
+      case '+':
+        result = a + b;
+        break;
+      case '-':
+        result = a - b;
+        break;
+      case '*':
+        result = a * b;
+        break;
+      case '/':
+        if (b === 0) {
+          alert("Division by zero.");
+          stack.push(a, b);
+          return;
+        }
+        result = a / b;
+        break;
+      default:
+        alert("Unknown operation.");
+        stack.push(a, b);
+        return;
+    }
+    stack.push(result);
+    updateRPNDisplay();
+  }
+  
+  function changeSign() {
+    if (currentInput !== "") {
+      if (currentInput.charAt(0) === '-') {
+        currentInput = currentInput.slice(1);
+      } else {
+        currentInput = '-' + currentInput;
+      }
+    } else if (stack.length > 0) {
+      stack[stack.length - 1] = -stack[stack.length - 1];
+    }
+    updateRPNDisplay();
+  }
+  
+  function clearAll() {
+    currentInput = "";
+    stack = [];
+    updateRPNDisplay();
+  }
+  
+  /***********************
+   * TVM Calculator Code
+   ***********************/
+  function calculateTVM() {
+    let n = document.getElementById('n').value;
+    let iy = document.getElementById('iy').value;
+    let pv = document.getElementById('pv').value;
+    let pmt = document.getElementById('pmt').value;
+    let fv = document.getElementById('fv').value;
+    
+    n = n === "" ? undefined : parseFloat(n);
+    iy = iy === "" ? undefined : parseFloat(iy);
+    pv = pv === "" ? undefined : parseFloat(pv);
+    pmt = pmt === "" ? undefined : parseFloat(pmt);
+    fv = fv === "" ? undefined : parseFloat(fv);
+    
+    let solveFor = document.getElementById('solveFor').value;
+    
+    let missingCount = 0;
+    if (solveFor !== 'n' && n === undefined) missingCount++;
+    if (solveFor !== 'iy' && iy === undefined) missingCount++;
+    if (solveFor !== 'pv' && pv === undefined) missingCount++;
+    if (solveFor !== 'pmt' && pmt === undefined) missingCount++;
+    if (solveFor !== 'fv' && fv === undefined) missingCount++;
+    
+    if (missingCount > 0) {
+      alert("Please fill in all fields except the one selected to solve for (" + solveFor.toUpperCase() + ").");
+      return;
+    }
+    
+    let result;
+    switch (solveFor) {
+      case 'fv':
+        if (iy === 0) {
+          result = pv + n * pmt;
+        } else {
+          result = pv * Math.pow(1 + iy, n) + pmt * ((Math.pow(1 + iy, n) - 1) / iy);
+        }
+        document.getElementById('fv').value = result.toFixed(4);
+        break;
+      case 'pv':
+        if (iy === 0) {
+          result = fv - n * pmt;
+        } else {
+          result = (fv - pmt * ((Math.pow(1 + iy, n) - 1) / iy)) / Math.pow(1 + iy, n);
+        }
+        document.getElementById('pv').value = result.toFixed(4);
+        break;
+      case 'pmt':
+        if (iy === 0) {
+          result = (fv - pv) / n;
+        } else {
+          result = (fv - pv * Math.pow(1 + iy, n)) * iy / (Math.pow(1 + iy, n) - 1);
+        }
+        document.getElementById('pmt').value = result.toFixed(4);
+        break;
+      case 'iy':
+        result = solveForIY(pv, pmt, n, fv);
+        document.getElementById('iy').value = result.toFixed(6);
+        break;
+      case 'n':
+        result = solveForN(pv, pmt, iy, fv);
+        document.getElementById('n').value = result.toFixed(4);
+        break;
+      default:
+        alert("Unknown solve for option.");
+    }
+  }
+  
+  // Solve for Interest Rate (I/Y) using a bisection method.
+  function solveForIY(pv, pmt, n, fv) {
+    if (pmt === 0 && pv !== 0) {
+      return Math.pow(fv / pv, 1 / n) - 1;
+    }
+    let low = 0, high = 1, mid;
+    for (let i = 0; i < 100; i++) {
+      mid = (low + high) / 2;
+      let guess = mid === 0 ? pv + n * pmt : pv * Math.pow(1 + mid, n) + pmt * ((Math.pow(1 + mid, n) - 1) / mid);
+      if (guess > fv) {
+        high = mid;
+      } else {
+        low = mid;
+      }
+    }
+    return mid;
+  }
+  
+  // Solve for Number of Periods (N)
+  function solveForN(pv, pmt, iy, fv) {
+    if (iy === 0) {
+      return (fv - pv) / pmt;
+    }
+    if (pmt === 0) {
+      return Math.log(fv / pv) / Math.log(1 + iy);
+    }
+    let numerator = Math.log((fv * iy / pmt + 1) / (pv * iy / pmt + 1));
+    let denominator = Math.log(1 + iy);
+    return numerator / denominator;
+  }
+</script>
 </body>
 </html>
