@@ -71,21 +71,31 @@
     .hufflepuff { background: #EEE117; color: #000; }
     .number-btn { background: #4c4c4c; }
 
-    /* Animation Styles */
+    /* Animated Paper Fortune Teller */
     #animation {
-      width: 80px;
-      height: 80px;
+      width: 100px;
+      height: 100px;
       margin: 0 auto 20px;
-      background: linear-gradient(45deg, #eee 25%, #ccc 25%, #ccc 50%, #eee 50%, #eee 75%, #ccc 75%);
-      background-size: 40px 40px;
-      border-radius: 10px;
-      animation: pulse 1s ease-in-out;
+      perspective: 600px;
     }
 
-    @keyframes pulse {
-      0%   { transform: scale(1); opacity: 1; }
-      50%  { transform: scale(1.2); opacity: 0.6; }
-      100% { transform: scale(1); opacity: 1; }
+    .fortune-flip {
+      width: 100%;
+      height: 100%;
+      background: #fefefe;
+      position: relative;
+      transform-style: preserve-3d;
+      animation: flap 1s ease-in-out;
+      box-shadow: inset 0 0 5px #aaa;
+      clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+    }
+
+    @keyframes flap {
+      0%   { transform: rotateX(0deg); }
+      25%  { transform: rotateX(30deg); }
+      50%  { transform: rotateX(-30deg); }
+      75%  { transform: rotateX(20deg); }
+      100% { transform: rotateX(0deg); }
     }
   </style>
 </head>
@@ -93,7 +103,7 @@
   <div class="container">
     <img src="file_00000000b49061f78581e67ff86437c4.png" alt="Fortune Fellas Characters" class="illustration" />
     <h1>Fortune Fellas</h1>
-    <div id="animation" class="hidden"></div>
+    <div id="animation" class="hidden"><div class="fortune-flip"></div></div>
     <div id="step" class="message">Choose a House</div>
     <div id="buttons" class="buttons"></div>
     <button id="restart" class="hidden">Play Again</button>
@@ -120,7 +130,11 @@
 
     function animateFortuneTeller(callback) {
       animationEl.classList.remove('hidden');
-      animationEl.classList.add('fortune-teller');
+      const flip = animationEl.querySelector('.fortune-flip');
+      flip.style.animation = 'none';
+      void flip.offsetWidth; // trigger reflow to restart animation
+      flip.style.animation = 'flap 1s ease-in-out';
+
       setTimeout(() => {
         animationEl.classList.add('hidden');
         callback();
