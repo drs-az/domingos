@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -40,8 +39,10 @@
     }
     .buttons {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
       gap: 10px;
+    }
+    .buttons.houses {
+      grid-template-columns: repeat(2, 1fr);
     }
     button {
       padding: 10px;
@@ -90,59 +91,60 @@
       'Your kindness will forge lasting alliances.',
       'Beware illusions; not all is as it seems in the Forbidden Forest.',
       'A glimpse into the past will bring you clarity.'
-    ];
+    ];const stepEl = document.getElementById('step');
+const buttonsEl = document.getElementById('buttons');
+const restartBtn = document.getElementById('restart');
 
-    const stepEl = document.getElementById('step');
-    const buttonsEl = document.getElementById('buttons');
-    const restartBtn = document.getElementById('restart');
+function start() {
+  stepEl.textContent = 'Choose a House';
+  buttonsEl.innerHTML = '';
+  buttonsEl.classList.add('houses');
+  restartBtn.classList.add('hidden');
 
-    function start() {
-      stepEl.textContent = 'Choose a House';
-      buttonsEl.innerHTML = '';
-      restartBtn.classList.add('hidden');
+  houses.forEach(house => {
+    const btn = document.createElement('button');
+    btn.textContent = house;
+    btn.classList.add(house.toLowerCase());
+    btn.addEventListener('click', () => chooseNumber());
+    buttonsEl.appendChild(btn);
+  });
+}
 
-      houses.forEach(house => {
-        const btn = document.createElement('button');
-        btn.textContent = house;
-        btn.classList.add(house.toLowerCase());
-        btn.addEventListener('click', () => chooseNumber());
-        buttonsEl.appendChild(btn);
-      });
-    }
+function chooseNumber() {
+  stepEl.textContent = 'Choose a number';
+  buttonsEl.innerHTML = '';
+  buttonsEl.classList.remove('houses');
+  numbers.forEach(num => {
+    const btn = document.createElement('button');
+    btn.textContent = num;
+    btn.classList.add('number-btn');
+    btn.addEventListener('click', () => chooseSecondNumber(num));
+    buttonsEl.appendChild(btn);
+  });
+}
 
-    function chooseNumber() {
-      stepEl.textContent = 'Choose a number';
-      buttonsEl.innerHTML = '';
-      numbers.forEach(num => {
-        const btn = document.createElement('button');
-        btn.textContent = num;
-        btn.classList.add('number-btn');
-        btn.addEventListener('click', () => chooseSecondNumber(num));
-        buttonsEl.appendChild(btn);
-      });
-    }
+function chooseSecondNumber(firstNum) {
+  stepEl.textContent = 'Choose another number';
+  buttonsEl.innerHTML = '';
+  numbers.forEach(num => {
+    const btn = document.createElement('button');
+    btn.textContent = num;
+    btn.classList.add('number-btn');
+    btn.addEventListener('click', () => showFortune(num));
+    buttonsEl.appendChild(btn);
+  });
+}
 
-    function chooseSecondNumber(firstNum) {
-      stepEl.textContent = 'Choose another number';
-      buttonsEl.innerHTML = '';
-      numbers.forEach(num => {
-        const btn = document.createElement('button');
-        btn.textContent = num;
-        btn.classList.add('number-btn');
-        btn.addEventListener('click', () => showFortune(num));
-        buttonsEl.appendChild(btn);
-      });
-    }
+function showFortune(secondNum) {
+  const index = (secondNum - 1) % fortunes.length;
+  stepEl.textContent = fortunes[index];
+  buttonsEl.innerHTML = '';
+  restartBtn.classList.remove('hidden');
+}
 
-    function showFortune(secondNum) {
-      const index = (secondNum - 1) % fortunes.length;
-      stepEl.textContent = fortunes[index];
-      buttonsEl.innerHTML = '';
-      restartBtn.classList.remove('hidden');
-    }
+restartBtn.addEventListener('click', start);
+start();
 
-    restartBtn.addEventListener('click', start);
-    start();
   </script>
 </body>
 </html>
