@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -69,16 +70,35 @@
     .ravenclaw { background: #000A90; }
     .hufflepuff { background: #EEE117; color: #000; }
     .number-btn { background: #4c4c4c; }
+
+    /* Animation Styles */
+    #animation {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 20px;
+      background: linear-gradient(45deg, #eee 25%, #ccc 25%, #ccc 50%, #eee 50%, #eee 75%, #ccc 75%);
+      background-size: 40px 40px;
+      border-radius: 10px;
+      animation: pulse 1s ease-in-out;
+    }
+
+    @keyframes pulse {
+      0%   { transform: scale(1); opacity: 1; }
+      50%  { transform: scale(1.2); opacity: 0.6; }
+      100% { transform: scale(1); opacity: 1; }
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <img src="file_00000000b49061f78581e67ff86437c4.png" alt="Fortune Fellas Characters" class="illustration" />
     <h1>Fortune Fellas</h1>
+    <div id="animation" class="hidden"></div>
     <div id="step" class="message">Choose a House</div>
     <div id="buttons" class="buttons"></div>
     <button id="restart" class="hidden">Play Again</button>
   </div>
+
   <script>
     const houses = ['Gryffindor','Slytherin','Ravenclaw','Hufflepuff'];
     const numbers = [1,2,3,4,5,6,7,8];
@@ -91,60 +111,82 @@
       'Your kindness will forge lasting alliances.',
       'Beware illusions; not all is as it seems in the Forbidden Forest.',
       'A glimpse into the past will bring you clarity.'
-    ];const stepEl = document.getElementById('step');
-const buttonsEl = document.getElementById('buttons');
-const restartBtn = document.getElementById('restart');
+    ];
 
-function start() {
-  stepEl.textContent = 'Choose a House';
-  buttonsEl.innerHTML = '';
-  buttonsEl.classList.add('houses');
-  restartBtn.classList.add('hidden');
+    const stepEl = document.getElementById('step');
+    const buttonsEl = document.getElementById('buttons');
+    const restartBtn = document.getElementById('restart');
+    const animationEl = document.getElementById('animation');
 
-  houses.forEach(house => {
-    const btn = document.createElement('button');
-    btn.textContent = house;
-    btn.classList.add(house.toLowerCase());
-    btn.addEventListener('click', () => chooseNumber());
-    buttonsEl.appendChild(btn);
-  });
-}
+    function animateFortuneTeller(callback) {
+      animationEl.classList.remove('hidden');
+      animationEl.classList.add('fortune-teller');
+      setTimeout(() => {
+        animationEl.classList.add('hidden');
+        callback();
+      }, 1000);
+    }
 
-function chooseNumber() {
-  stepEl.textContent = 'Choose a number';
-  buttonsEl.innerHTML = '';
-  buttonsEl.classList.remove('houses');
-  numbers.forEach(num => {
-    const btn = document.createElement('button');
-    btn.textContent = num;
-    btn.classList.add('number-btn');
-    btn.addEventListener('click', () => chooseSecondNumber(num));
-    buttonsEl.appendChild(btn);
-  });
-}
+    function start() {
+      stepEl.textContent = '';
+      buttonsEl.innerHTML = '';
+      buttonsEl.classList.add('houses');
+      restartBtn.classList.add('hidden');
 
-function chooseSecondNumber(firstNum) {
-  stepEl.textContent = 'Choose another number';
-  buttonsEl.innerHTML = '';
-  numbers.forEach(num => {
-    const btn = document.createElement('button');
-    btn.textContent = num;
-    btn.classList.add('number-btn');
-    btn.addEventListener('click', () => showFortune(num));
-    buttonsEl.appendChild(btn);
-  });
-}
+      animateFortuneTeller(() => {
+        stepEl.textContent = 'Choose a House';
+        houses.forEach(house => {
+          const btn = document.createElement('button');
+          btn.textContent = house;
+          btn.classList.add(house.toLowerCase());
+          btn.addEventListener('click', () => chooseNumber());
+          buttonsEl.appendChild(btn);
+        });
+      });
+    }
 
-function showFortune(secondNum) {
-  const index = (secondNum - 1) % fortunes.length;
-  stepEl.textContent = fortunes[index];
-  buttonsEl.innerHTML = '';
-  restartBtn.classList.remove('hidden');
-}
+    function chooseNumber() {
+      stepEl.textContent = '';
+      buttonsEl.innerHTML = '';
+      buttonsEl.classList.remove('houses');
 
-restartBtn.addEventListener('click', start);
-start();
+      animateFortuneTeller(() => {
+        stepEl.textContent = 'Choose a number';
+        numbers.forEach(num => {
+          const btn = document.createElement('button');
+          btn.textContent = num;
+          btn.classList.add('number-btn');
+          btn.addEventListener('click', () => chooseSecondNumber(num));
+          buttonsEl.appendChild(btn);
+        });
+      });
+    }
 
+    function chooseSecondNumber(firstNum) {
+      stepEl.textContent = '';
+      buttonsEl.innerHTML = '';
+
+      animateFortuneTeller(() => {
+        stepEl.textContent = 'Choose another number';
+        numbers.forEach(num => {
+          const btn = document.createElement('button');
+          btn.textContent = num;
+          btn.classList.add('number-btn');
+          btn.addEventListener('click', () => showFortune(num));
+          buttonsEl.appendChild(btn);
+        });
+      });
+    }
+
+    function showFortune(secondNum) {
+      const index = (secondNum - 1) % fortunes.length;
+      stepEl.textContent = fortunes[index];
+      buttonsEl.innerHTML = '';
+      restartBtn.classList.remove('hidden');
+    }
+
+    restartBtn.addEventListener('click', start);
+    start();
   </script>
 </body>
 </html>
