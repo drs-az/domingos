@@ -1,11 +1,12 @@
-<!DOCTYPE html><html lang=\"en\">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset=\"UTF-8\">
-  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Fortune Fellas</title>
   <style>
     body {
-      font-family: 'Lumos Tint', serif;
+      font-family: 'Georgia', serif;
       background: #f2f0ea;
       margin: 0;
       display: flex;
@@ -14,16 +15,15 @@
       height: 100vh;
     }
     .container {
-      background: rgba(255,255,255,0.95);
+      background: rgba(255, 255, 255, 0.95);
       padding: 30px;
       border-radius: 12px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
       text-align: center;
       max-width: 400px;
       width: 90%;
     }
     h1 {
-      font-family: 'Lumos', serif;
       font-size: 2rem;
       margin: 10px 0;
       color: #330e1c;
@@ -71,12 +71,12 @@
   </style>
 </head>
 <body>
-  <div class=\"container\">
-    <img src=\"file_00000000b49061f78581e67ff86437c4.png\" alt=\"Fortune Fellas Characters\" class=\"illustration\">
+  <div class="container">
+    <img src="file_00000000b49061f78581e67ff86437c4.png" alt="Fortune Fellas Characters" class="illustration" />
     <h1>Fortune Fellas</h1>
-    <div id=\"step\" class=\"message\">Choose a House</div>
-    <div id=\"buttons\" class=\"buttons\"></div>
-    <button id=\"restart\" class=\"hidden\">Play Again</button>
+    <div id="step" class="message">Choose a House</div>
+    <div id="buttons" class="buttons"></div>
+    <button id="restart" class="hidden">Play Again</button>
   </div>
   <script>
     const houses = ['Gryffindor','Slytherin','Ravenclaw','Hufflepuff'];
@@ -91,49 +91,56 @@
       'Beware illusions; not all is as it seems in the Forbidden Forest.',
       'A glimpse into the past will bring you clarity.'
     ];
-    let stepEl = document.getElementById('step');
-    let buttonsEl = document.getElementById('buttons');
-    let restartBtn = document.getElementById('restart');
+
+    const stepEl = document.getElementById('step');
+    const buttonsEl = document.getElementById('buttons');
+    const restartBtn = document.getElementById('restart');
+
     function start() {
       stepEl.textContent = 'Choose a House';
       buttonsEl.innerHTML = '';
       restartBtn.classList.add('hidden');
+
       houses.forEach(house => {
-        let btn = document.createElement('button');
+        const btn = document.createElement('button');
         btn.textContent = house;
         btn.classList.add(house.toLowerCase());
         btn.addEventListener('click', () => chooseNumber());
         buttonsEl.appendChild(btn);
       });
     }
+
     function chooseNumber() {
       stepEl.textContent = 'Choose a number';
       buttonsEl.innerHTML = '';
       numbers.forEach(num => {
-        let btn = document.createElement('button');
+        const btn = document.createElement('button');
         btn.textContent = num;
         btn.classList.add('number-btn');
         btn.addEventListener('click', () => chooseSecondNumber(num));
         buttonsEl.appendChild(btn);
       });
     }
+
     function chooseSecondNumber(firstNum) {
       stepEl.textContent = 'Choose another number';
       buttonsEl.innerHTML = '';
       numbers.forEach(num => {
-        let btn = document.createElement('button');
+        const btn = document.createElement('button');
         btn.textContent = num;
         btn.classList.add('number-btn');
         btn.addEventListener('click', () => showFortune(num));
         buttonsEl.appendChild(btn);
       });
     }
+
     function showFortune(secondNum) {
       const index = (secondNum - 1) % fortunes.length;
       stepEl.textContent = fortunes[index];
       buttonsEl.innerHTML = '';
       restartBtn.classList.remove('hidden');
     }
+
     restartBtn.addEventListener('click', start);
     start();
   </script>
