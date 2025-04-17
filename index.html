@@ -1,417 +1,139 @@
-<!DOCTYPE html>
-<html>
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>HP12C Financial Calculator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fortune Fellas</title>
   <style>
-    /* Overall Body and Container */
     body {
-      background-color: #444;
-      margin: 0;
-      height: 100vh;
+      font-family: sans-serif;
       display: flex;
-      justify-content: center;
       align-items: center;
-      font-family: Arial, sans-serif;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      background: #f0f0f0;
     }
-    #calculator-container {
-      background: #333;
-      border: 2px solid #000;
-      border-radius: 15px;
+    .container {
+      background: white;
       padding: 20px;
-      width: 350px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-    }
-    h1 {
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
       text-align: center;
-      color: #fff;
-      margin-bottom: 10px;
-      font-size: 20px;
+      max-width: 400px;
+      width: 90%;
     }
-    /* Mode (Tab) Buttons */
-    .tabs {
-      text-align: center;
-      margin-bottom: 20px;
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+      gap: 10px;
+      margin-top: 20px;
     }
-    .tabs button {
-      background: #777;
-      color: #fff;
+    button {
+      padding: 10px;
+      font-size: 1rem;
       border: none;
       border-radius: 5px;
-      padding: 8px 16px;
-      margin: 0 5px;
       cursor: pointer;
-      font-size: 14px;
-      box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
-    }
-    .tabs button.active {
-      background: #aaa;
-      box-shadow: none;
-    }
-    /* Section Containers */
-    .section {
-      background: #222;
-      padding: 15px;
-      border: 1px solid #000;
-      border-radius: 10px;
-      margin-bottom: 20px;
-    }
-    /* HP12C–Style Display */
-    #rpnDisplay {
-      background: #000;
-      color: #0f0;
-      font-family: 'Digital-7', 'Courier New', monospace;
-      font-size: 26px;
-      text-align: right;
-      padding: 10px;
-      border: 2px inset #555;
-      border-radius: 5px;
-      margin-bottom: 10px;
-      min-height: 40px;
-    }
-    /* RPN Keypad styling */
-    .rpn-buttons {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-    }
-    .rpn-buttons button {
-      background: linear-gradient(to bottom, #e6e6e6, #ccc);
-      border: 1px solid #999;
-      border-radius: 8px;
-      font-size: 18px;
-      padding: 15px 0;
-      cursor: pointer;
-      box-shadow: 0 2px #666;
-      transition: all 0.1s ease-in-out;
-    }
-    .rpn-buttons button:active {
-      box-shadow: 0 1px #666;
-      transform: translateY(1px);
-    }
-    /* Stack display */
-    #stackDisplay {
+      transition: background 0.3s;
       color: #fff;
-      font-size: 14px;
-      margin-top: 10px;
-      max-height: 100px;
-      overflow-y: auto;
     }
-    /* TVM Calculator Inputs */
-    .tvm-inputs label {
-      color: #fff;
-      display: block;
-      margin-top: 10px;
-      font-size: 14px;
+    button:hover {
+      opacity: 0.8;
     }
-    .tvm-inputs input, .tvm-inputs select {
-      width: 100%;
-      padding: 8px;
-      font-size: 14px;
-      border-radius: 5px;
-      border: 1px solid #777;
-      margin-top: 5px;
+    .message {
+      font-size: 1.2rem;
     }
-    .tvm-calc button {
-      display: block;
-      width: 100%;
-      background: linear-gradient(to bottom, #e6e6e6, #ccc);
-      border: 1px solid #999;
-      border-radius: 8px;
-      font-size: 16px;
-      padding: 10px;
-      cursor: pointer;
-      margin-top: 15px;
-      box-shadow: 0 2px #666;
-      transition: all 0.1s ease-in-out;
+    #restart {
+      margin-top: 20px;
+      background: #28a745;
     }
-    .tvm-calc button:active {
-      box-shadow: 0 1px #666;
-      transform: translateY(1px);
+    #restart:hover {
+      opacity: 0.8;
+    }
+    .hidden {
+      display: none;
     }
   </style>
 </head>
 <body>
-<div id="calculator-container">
-  <h1>HP12C Financial Calculator</h1>
-  <div class="tabs">
-    <button id="rpnTab" class="active" onclick="showSection('rpn')">RPN</button>
-    <button id="tvmTab" onclick="showSection('tvm')">TVM</button>
+  <div class="container">
+    <div id="step" class="message">Choose a color</div>
+    <div id="buttons" class="buttons"></div>
+    <button id="restart" class="hidden">Play Again</button>
   </div>
-  
-  <!-- RPN Calculator Section -->
-  <div id="rpnSection" class="section">
-    <div id="rpnDisplay">0</div>
-    <div class="rpn-buttons">
-      <!-- Row 1 -->
-      <button onclick="appendDigit('7')">7</button>
-      <button onclick="appendDigit('8')">8</button>
-      <button onclick="appendDigit('9')">9</button>
-      <button onclick="operate('/')">/</button>
-      <!-- Row 2 -->
-      <button onclick="appendDigit('4')">4</button>
-      <button onclick="appendDigit('5')">5</button>
-      <button onclick="appendDigit('6')">6</button>
-      <button onclick="operate('*')">*</button>
-      <!-- Row 3 -->
-      <button onclick="appendDigit('1')">1</button>
-      <button onclick="appendDigit('2')">2</button>
-      <button onclick="appendDigit('3')">3</button>
-      <button onclick="operate('-')">-</button>
-      <!-- Row 4 -->
-      <button onclick="appendDigit('0')">0</button>
-      <button onclick="appendDigit('.')">.</button>
-      <button onclick="enter()">Enter</button>
-      <button onclick="operate('+')">+</button>
-      <!-- Row 5 (Additional Keys) -->
-      <button onclick="changeSign()">CHS</button>
-      <button onclick="clearAll()">C</button>
-    </div>
-    <div id="stackDisplay"></div>
-  </div>
-  
-  <!-- TVM Calculator Section -->
-  <div id="tvmSection" class="section" style="display:none;">
-    <div class="tvm-inputs">
-      <label for="n">N (Number of Periods):</label>
-      <input type="number" id="n" placeholder="Enter N" step="any">
-      
-      <label for="iy">I/Y (Interest Rate per period, in decimal):</label>
-      <input type="number" id="iy" placeholder="Enter I/Y" step="any">
-      
-      <label for="pv">PV (Present Value):</label>
-      <input type="number" id="pv" placeholder="Enter PV" step="any">
-      
-      <label for="pmt">PMT (Payment):</label>
-      <input type="number" id="pmt" placeholder="Enter PMT" step="any">
-      
-      <label for="fv">FV (Future Value):</label>
-      <input type="number" id="fv" placeholder="Enter FV" step="any">
-      
-      <label for="solveFor">Solve For:</label>
-      <select id="solveFor">
-        <option value="fv">Future Value (FV)</option>
-        <option value="pv">Present Value (PV)</option>
-        <option value="pmt">Payment (PMT)</option>
-        <option value="iy">Interest per period (I/Y)</option>
-        <option value="n">Number of Periods (N)</option>
-      </select>
-    </div>
-    <div class="tvm-calc">
-      <button onclick="calculateTVM()">Calculate</button>
-    </div>
-  </div>
-</div>
+  <script>
+    const colors = ['Red','Blue','Green','Yellow'];
+    const numbers = [1,2,3,4,5,6,7,8];
+    const fortunes = [
+      'You will have a fantastic day!',
+      'A surprise is waiting for you around the corner.',
+      'Happiness will find you soon.',
+      'Be open to new opportunities.',
+      'Someone cares deeply about you.',
+      'Adventure is on the horizon.',
+      'Good news will come to you by mail.',
+      'You will make a valuable connection.'
+    ];
+    let selectedColor = null;
+    let firstNumber = null;
+    let secondNumber = null;
+    const stepEl = document.getElementById('step');
+    const buttonsEl = document.getElementById('buttons');
+    const restartBtn = document.getElementById('restart');function start() {
+  stepEl.textContent = 'Choose a color';
+  buttonsEl.innerHTML = '';
+  restartBtn.classList.add('hidden');
 
-<script>
-  /***********************
-   * Section Switching
-   ***********************/
-  function showSection(section) {
-    if (section === 'rpn') {
-      document.getElementById('rpnSection').style.display = 'block';
-      document.getElementById('tvmSection').style.display = 'none';
-      document.getElementById('rpnTab').classList.add('active');
-      document.getElementById('tvmTab').classList.remove('active');
-    } else if (section === 'tvm') {
-      document.getElementById('rpnSection').style.display = 'none';
-      document.getElementById('tvmSection').style.display = 'block';
-      document.getElementById('tvmTab').classList.add('active');
-      document.getElementById('rpnTab').classList.remove('active');
-    }
-  }
-  
-  /***********************
-   * RPN Calculator Code
-   ***********************/
-  let stack = [];
-  let currentInput = "";
-  
-  function updateRPNDisplay() {
-    const display = document.getElementById('rpnDisplay');
-    display.textContent = currentInput !== "" ? currentInput : (stack.length > 0 ? stack[stack.length - 1] : "0");
-    
-    const stackDiv = document.getElementById('stackDisplay');
-    stackDiv.innerHTML = "";
-    for (let i = stack.length - 1; i >= 0; i--) {
-      const div = document.createElement('div');
-      div.textContent = (stack.length - i) + ": " + stack[i];
-      stackDiv.appendChild(div);
-    }
-  }
-  
-  function appendDigit(digit) {
-    currentInput += digit;
-    updateRPNDisplay();
-  }
-  
-  function enter() {
-    if (currentInput !== "") {
-      let value = parseFloat(currentInput);
-      if (!isNaN(value)) {
-        stack.push(value);
-      }
-      currentInput = "";
-      updateRPNDisplay();
-    }
-  }
-  
-  function operate(op) {
-    if (currentInput !== "") {
-      enter();
-    }
-    if (stack.length < 2) {
-      alert("Not enough values in the stack.");
-      return;
-    }
-    let b = stack.pop();
-    let a = stack.pop();
-    let result;
-    switch (op) {
-      case '+':
-        result = a + b;
-        break;
-      case '-':
-        result = a - b;
-        break;
-      case '*':
-        result = a * b;
-        break;
-      case '/':
-        if (b === 0) {
-          alert("Division by zero.");
-          stack.push(a, b);
-          return;
-        }
-        result = a / b;
-        break;
-      default:
-        alert("Unknown operation.");
-        stack.push(a, b);
-        return;
-    }
-    stack.push(result);
-    updateRPNDisplay();
-  }
-  
-  function changeSign() {
-    if (currentInput !== "") {
-      if (currentInput.charAt(0) === '-') {
-        currentInput = currentInput.slice(1);
-      } else {
-        currentInput = '-' + currentInput;
-      }
-    } else if (stack.length > 0) {
-      stack[stack.length - 1] = -stack[stack.length - 1];
-    }
-    updateRPNDisplay();
-  }
-  
-  function clearAll() {
-    currentInput = "";
-    stack = [];
-    updateRPNDisplay();
-  }
-  
-  /***********************
-   * TVM Calculator Code
-   ***********************/
-  function calculateTVM() {
-    let n = document.getElementById('n').value;
-    let iy = document.getElementById('iy').value;
-    let pv = document.getElementById('pv').value;
-    let pmt = document.getElementById('pmt').value;
-    let fv = document.getElementById('fv').value;
-    
-    n = n === "" ? undefined : parseFloat(n);
-    iy = iy === "" ? undefined : parseFloat(iy);
-    pv = pv === "" ? undefined : parseFloat(pv);
-    pmt = pmt === "" ? undefined : parseFloat(pmt);
-    fv = fv === "" ? undefined : parseFloat(fv);
-    
-    let solveFor = document.getElementById('solveFor').value;
-    
-    let missingCount = 0;
-    if (solveFor !== 'n' && n === undefined) missingCount++;
-    if (solveFor !== 'iy' && iy === undefined) missingCount++;
-    if (solveFor !== 'pv' && pv === undefined) missingCount++;
-    if (solveFor !== 'pmt' && pmt === undefined) missingCount++;
-    if (solveFor !== 'fv' && fv === undefined) missingCount++;
-    
-    if (missingCount > 0) {
-      alert("Please fill in all fields except the one selected to solve for (" + solveFor.toUpperCase() + ").");
-      return;
-    }
-    
-    let result;
-    switch (solveFor) {
-      case 'fv':
-        if (iy === 0) {
-          result = pv + n * pmt;
-        } else {
-          result = pv * Math.pow(1 + iy, n) + pmt * ((Math.pow(1 + iy, n) - 1) / iy);
-        }
-        document.getElementById('fv').value = result.toFixed(4);
-        break;
-      case 'pv':
-        if (iy === 0) {
-          result = fv - n * pmt;
-        } else {
-          result = (fv - pmt * ((Math.pow(1 + iy, n) - 1) / iy)) / Math.pow(1 + iy, n);
-        }
-        document.getElementById('pv').value = result.toFixed(4);
-        break;
-      case 'pmt':
-        if (iy === 0) {
-          result = (fv - pv) / n;
-        } else {
-          result = (fv - pv * Math.pow(1 + iy, n)) * iy / (Math.pow(1 + iy, n) - 1);
-        }
-        document.getElementById('pmt').value = result.toFixed(4);
-        break;
-      case 'iy':
-        result = solveForIY(pv, pmt, n, fv);
-        document.getElementById('iy').value = result.toFixed(6);
-        break;
-      case 'n':
-        result = solveForN(pv, pmt, iy, fv);
-        document.getElementById('n').value = result.toFixed(4);
-        break;
-      default:
-        alert("Unknown solve for option.");
-    }
-  }
-  
-  // Solve for Interest Rate (I/Y) using a bisection method.
-  function solveForIY(pv, pmt, n, fv) {
-    if (pmt === 0 && pv !== 0) {
-      return Math.pow(fv / pv, 1 / n) - 1;
-    }
-    let low = 0, high = 1, mid;
-    for (let i = 0; i < 100; i++) {
-      mid = (low + high) / 2;
-      let guess = mid === 0 ? pv + n * pmt : pv * Math.pow(1 + mid, n) + pmt * ((Math.pow(1 + mid, n) - 1) / mid);
-      if (guess > fv) {
-        high = mid;
-      } else {
-        low = mid;
-      }
-    }
-    return mid;
-  }
-  
-  // Solve for Number of Periods (N)
-  function solveForN(pv, pmt, iy, fv) {
-    if (iy === 0) {
-      return (fv - pv) / pmt;
-    }
-    if (pmt === 0) {
-      return Math.log(fv / pv) / Math.log(1 + iy);
-    }
-    let numerator = Math.log((fv * iy / pmt + 1) / (pv * iy / pmt + 1));
-    let denominator = Math.log(1 + iy);
-    return numerator / denominator;
-  }
-</script>
+  colors.forEach(color => {
+    const btn = document.createElement('button');
+    btn.textContent = color;
+    btn.style.background = color.toLowerCase();
+    if (color === 'Yellow') btn.style.color = '#000';
+    btn.addEventListener('click', () => chooseColor(color));
+    buttonsEl.appendChild(btn);
+  });
+}
+
+function chooseColor(color) {
+  selectedColor = color;
+  stepEl.textContent = 'Choose a number';
+  buttonsEl.innerHTML = '';
+
+  numbers.forEach(num => {
+    const btn = document.createElement('button');
+    btn.textContent = num;
+    btn.style.background = '#007BFF';
+    btn.addEventListener('click', () => chooseFirstNumber(num));
+    buttonsEl.appendChild(btn);
+  });
+}
+
+function chooseFirstNumber(num) {
+  firstNumber = num;
+  stepEl.textContent = 'Choose another number';
+  buttonsEl.innerHTML = '';
+
+  numbers.forEach(num => {
+    const btn = document.createElement('button');
+    btn.textContent = num;
+    btn.style.background = '#007BFF';
+    btn.addEventListener('click', () => showFortune(num));
+    buttonsEl.appendChild(btn);
+  });
+}
+
+function showFortune(num) {
+  secondNumber = num;
+  const fortune = fortunes[(secondNumber - 1) % fortunes.length];
+  stepEl.textContent = fortune;
+  buttonsEl.innerHTML = '';
+  restartBtn.classList.remove('hidden');
+}
+
+restartBtn.addEventListener('click', start);
+
+start();
+
+  </script>
 </body>
 </html>
