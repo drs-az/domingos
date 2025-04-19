@@ -63,7 +63,7 @@
   <div class="container">
     <div class="header">
       <div id="playerInfo"></div>
-      <button id="cashOutBtn" style="display:none;">Cash Out</button>
+      <button id="cashOutBtn" style="display:none;" onclick="cashOut()">Cash Out</button>
     </div>
     <div class="machine">
       <h1 style="color: gold; text-shadow: 2px 2px #000; margin: 0;">Crypto Slot Machine</h1>
@@ -173,15 +173,14 @@
 
     function buildHistory() {
       const hs=JSON.parse(localStorage.getItem('slotHistory'))||[];
-      const div=document.getElementById('history'); div.innerHTML='';
+      const div=document.getElementById('history'); div.innerHTML=''; div.style.display='none';
       hs.forEach(e=>{
-        const entry=document.createElement('div'); entry.className='entry';
-        entry.innerHTML=`[${e.time}] ${e.symbols} - ${e.win?`WIN $${e.p.toFixed(2)}`:'LOSE'} `;
+        const entr=document.createElement('div'); entr.className='entry';
+        entr.innerHTML=`[${e.time}] ${e.symbols} - ${e.win?`WIN $${e.p.toFixed(2)}`:'LOSE'} `;
         const sh=document.createElement('span'); sh.className='show-hash'; sh.textContent='Show Hash';
-        sh.onclick=()=>ht.style.display=ht.style.display==='none'?'block':'none';
         const ht=document.createElement('div'); ht.className='hashText'; ht.textContent=e.hash;
-        entry.appendChild(sh); entry.appendChild(ht);
-        div.appendChild(entry);
+        sh.onclick=()=>ht.style.display=ht.style.display==='none'?'block':'none';
+        entr.appendChild(sh); entr.appendChild(ht); div.appendChild(entr);
       });
     }
 
@@ -202,8 +201,8 @@
     window.onload = ()=>{
       document.getElementById('hash').style.display='none';
       document.getElementById('history').style.display='none';
-      updatePlayerInfo();
-      buildHistory();
+      document.getElementById('cashOutBtn').onclick = cashOut;
+      updatePlayerInfo(); buildHistory();
     };
   </script></body>
 </html>
