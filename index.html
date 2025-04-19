@@ -4,18 +4,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Santos Slot Machine</title>
   <meta name="theme-color" content="#222222">
-  <!-- Link to external manifest.json -->
   <link rel="manifest" href="manifest.json">
   <style>
     html, body { height: 100%; margin: 0; padding: 0; }
-    body {
-      font-family: sans-serif;
-      background: radial-gradient(circle, #222 0%, #111 100%);
-      color: #fff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+    body { font-family: sans-serif; background: radial-gradient(circle, #222 0%, #111 100%); color: #fff; display: flex; justify-content: center; align-items: center; }
     .container { width: 100%; max-width: 500px; padding: 10px; box-sizing: border-box; text-align: center; }
     .header { text-align: right; font-size: 1.2em; margin-bottom: 10px; }
     .machine { background: #333; border: 5px solid #888; border-radius: 15px; box-shadow: 0 0 20px #000 inset; padding: 20px; }
@@ -34,7 +26,7 @@
   </style>
 </head>
 <body>
-  <div class="container">
+  <div class="container" id="gameContainer" style="display:none;">
     <div class="header">
       <div id="playerInfo"></div>
       <button id="cashOutBtn" style="display:none;" onclick="cashOut()">Cash Out</button>
@@ -60,7 +52,13 @@
       <button id="historyToggleBtn" onclick="toggleHistory()">Show History</button>
     </div>
     <div id="history" style="display:none;"></div>
-  </div>  <!-- Start Game Modal -->  <div id="startModal" class="modal-overlay">
+  </div>  <!-- Install Modal -->  <div id="installModal" class="modal-overlay">
+    <div class="modal">
+      <h2>Install Santos Slot Machine?</h2>
+      <button id="installBtnModal">Install App</button>
+      <button id="skipInstallBtn">Continue to Game</button>
+    </div>
+  </div>  <!-- Start Game Modal -->  <div id="startModal" class="modal-overlay" style="display:none;">
     <div class="modal">
       <h2>Start Game</h2>
       <input id="playerNameInput" placeholder="Enter your name" />
@@ -74,27 +72,64 @@
       <button onclick="location.reload()">Play Again</button>
     </div>
   </div>  <script>
-    // Register external service worker
+    // Service worker
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js');
     }
-    // PWA install prompt
-let deferredPrompt = null;
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  // Show install button when prompt is available
-  const installBtn = document.getElementById('installBtn');
-  if (installBtn) installBtn.style.display = 'inline-block';
-});
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      deferredPrompt.prompt();
-      deferredPrompt.userChoice.then(() => deferredPrompt = null);
-    });
+    // PWA prompt
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
 
-    // Game logic unchanged...
-    // (rest of the script remains the same as before)
+    // Show install modal on load
+    window.onload = () => {
+      document.getElementById('installModal').style.display = 'flex';
+      document.getElementById('installBtnModal').onclick = async () => {
+        if (deferredPrompt) {
+          deferredPrompt.prompt();
+          await deferredPrompt.userChoice;
+        }
+        document.getElementById('installModal').style.display = 'none';
+        document.getElementById('startModal').style.display = 'flex';
+      };
+      document.getElementById('skipInstallBtn').onclick = () => {
+        document.getElementById('installModal').style.display = 'none';
+        document.getElementById('startModal').style.display = 'flex';
+      };
+    };
+
+    // Game logic
+    const symbols = ['🍒','🍋','🔔','💎','7'];
+    const payouts = {'7':5,'💎':4,'🍒':3,'🍋':2,'🔔':1};
+    const secret = 's3cr3t-k3y';
+    let cumSpent = parseFloat(localStorage.getItem('cumSpent'))||0;
+    let cumPaid  = parseFloat(localStorage.getItem('cumPaid'))||0;
+    let playerName = '';
+    let balance = 0;
+
+    async function sha256(message) {
+      const buf = new TextEncoder().encode(message);
+      const hashBuf = await crypto.subtle.digest('SHA-256', buf);
+      return Array.from(new Uint8Array(hashBuf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+    }
+    function weightedRandomSymbol() { const ws={'7':0.01,'💎':0.02,'🍒':0.04,'🍋':0.10,'🔔':0.15,'other':0.68};let r=Math.random(),c=0;for(let k in ws){c+=ws[k]; if(r<c) return k==='other'?symbols[Math.floor(Math.random()*symbols.length)]:k;}return symbols[Math.floor(Math.random()*symbols.length)]; }
+    function rand3(){return [symbols[Math.floor(Math.random()*symbols.length)],symbols[Math.floor(Math.random()*symbols.length)],symbols[Math.floor(Math.random()*symbols.length)]];}
+    function isWinCombo(a){return a[0]===a[1]&&a[1]===a[2];}
+
+    function startGame() {
+      playerName = document.getElementById('playerNameInput').value.trim()||'Player';
+      const pulls = parseInt(document.getElementById('pullsInput').value)||0;
+      balance = pulls;
+      document.getElementById('startModal').style.display='none';
+      document.getElementById('gameContainer').style.display='';
+      document.getElementById('spinBtn').disabled=false;
+      document.getElementById('cashOutBtn').style.display='inline-block';
+      updatePlayerInfo(); buildHistory();
+    }
+    function updatePlayerInfo() { document.getElementById('playerInfo').innerHTML = `${playerName}<br>Balance: $${balance.toFixed(2)}<br>Pulls Left: ${Math.floor(balance)}`; }
+    async function spin() { if(balance<1) return cashOut(); cumSpent++; balance--; document.getElementById('spinBtn').disabled=true; localStorage.setItem('cumSpent',cumSpent); updatePlayerInfo(); const roll=weightedRandomSymbol();let res,win=false,p=0;const pot=payouts[roll]||0;if(pot>0&&cumPaid+pot<=cumSpent*0.9){res=[roll,roll,roll];win=true;p=pot;cumPaid+=p;localStorage.setItem('cumPaid',cumPaid);balance+=p;updatePlayerInfo();}else{do{res=rand3();}while(isWinCombo(res));}document.getElementById('spinBtn').disabled=false;['reel1','reel2','reel3'].forEach((id,i)=>document.getElementById(id).textContent=res[i]);const h=await sha256(res.join('')+secret);document.getElementById('hash').textContent=h;location.hash=h;document.getElementById('result').innerHTML=win?`<span class=\"win\">You WIN $${p.toFixed(2)}!</span>`:`<span class=\"lose\">Try Again!</span>`;saveHistory(res.join(''),h,win,p);buildHistory();if(balance<1) cashOut();}
+    function saveHistory(sym,hash,win,p){let hs=JSON.parse(localStorage.getItem('slotHistory'))||[];hs.unshift({time:new Date().toLocaleString(),symbols:sym,hash,win,p});if(hs.length>20)hs=hs.slice(0,20);localStorage.setItem('slotHistory',JSON.stringify(hs));}
+    function buildHistory(){const hs=JSON.parse(localStorage.getItem('slotHistory'))||[];const div=document.getElementById('history');div.innerHTML='';hs.forEach(e=>{const entr=document.createElement('div');entr.className='entry';entr.innerHTML=`[${e.time}] ${e.symbols} - ${e.win?`WIN $${e.p.toFixed(2)}`:'LOSE'} `;const sh=document.createElement('span');sh.className='show-hash';sh.textContent='Show Hash';const ht=document.createElement('div');ht.className='hashText';ht.textContent=e.hash;sh.onclick=()=>ht.style.display=ht.style.display==='none'?'block':'none';entr.appendChild(sh);entr.appendChild(ht);div.appendChild(entr);});}
+    function toggleHistory(){const d=document.getElementById('history'),b=document.getElementById('historyToggleBtn');if(d.style.display==='none'){d.style.display='block';b.textContent='Hide History';}else{d.style.display='none';b.textContent='Show History';}}
+    function cashOut(){document.getElementById('endMessage').textContent=`${playerName}, you cashed out with $${balance.toFixed(2)}`;document.getElementById('endModal').style.display='flex';document.getElementById('spinBtn').disabled=true;document.getElementById('cashOutBtn').style.display='none';}
   </script></body>
 </html>
