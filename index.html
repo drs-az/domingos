@@ -2,30 +2,70 @@
 <head>
   <title>Crypto Slot Machine</title>
   <style>
-    body { font-family: sans-serif; text-align: center; margin-top: 50px; }
-    .reel { display: inline-block; font-size: 40px; margin: 0 15px; width: 60px; }
-    .win { color: green; font-weight: bold; }
-    .lose { color: red; font-weight: bold; }
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      margin-top: 50px;
+      background: radial-gradient(circle, #222 0%, #111 100%);
+      color: #fff;
+    }
+    .reel {
+      display: inline-block;
+      font-size: 40px;
+      margin: 0 15px;
+      width: 60px;
+    }
+    .win { color: #00ff00; font-weight: bold; }
+    .lose { color: #ff3333; font-weight: bold; }
     #history { margin-top: 30px; }
-    .entry { font-size: 16px; margin: 4px 0; }
+    .entry { font-size: 16px; margin: 4px 0; color: #ccc; }
+    .machine {
+      border: 5px solid #888;
+      padding: 20px;
+      border-radius: 15px;
+      background: #333;
+      display: inline-block;
+      box-shadow: 0 0 20px #000 inset;
+    }
+    #payoutChart {
+      margin-bottom: 20px;
+      font-size: 18px;
+    }
   </style>
 </head>
 <body>
-  <h1>Crypto Slot Machine</h1>
-  <div>
-    <span class="reel" id="reel1">?</span>
-    <span class="reel" id="reel2">?</span>
-    <span class="reel" id="reel3">?</span>
-  </div>
-  <br><br>
-  <button onclick="spin()">Pull Lever</button>
-  <p id="result"></p>
-  <p id="hash"></p>  <div id="history">
+  <h1 style="color: gold; text-shadow: 2px 2px #000;">Crypto Slot Machine</h1>  <div id="payoutChart">
+    <h3>Payout Chart ($1 per spin)</h3>
+    <p>Three 7's → $1.25</p>
+    <p>Three 💎 → $1.00</p>
+    <p>Three 🍒 → $0.75</p>
+    <p>Three 🍋 → $0.50</p>
+    <p>Three 🔔 → $0.25</p>
+  </div>  <div class="machine">
+    <div>
+      <span class="reel" id="reel1">?</span>
+      <span class="reel" id="reel2">?</span>
+      <span class="reel" id="reel3">?</span>
+    </div>
+    <br><br>
+    <button onclick="spin()">Pull Lever</button>
+    <p id="result"></p>
+    <p id="hash"></p>
+  </div>  <div id="history">
     <h3>Pull History</h3>
     <div id="historyList"></div>
   </div>  <script>
     const symbols = ['🍒', '🍋', '🔔', '💎', '7'];
-    const secret = 's3cr3t-k3y'; // used for hash verification on server or other client
+    const payouts = {
+      '7': 1.25,
+      '💎': 1.00,
+      '🍒': 0.75,
+      '🍋': 0.50,
+      '🔔': 0.25
+    };
+    const secret = 's3cr3t-k3y';
+    let totalSpent = 0;
+    let totalPaid = 0;
 
     async function sha256(message) {
       const encoder = new TextEncoder();
@@ -35,12 +75,53 @@
       return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
+    function weightedRandomSymbol() {
+      // Adjust frequencies so over time, payout is ~10% of bets
+      const weights = {
+        '7': 0.01,
+        '💎': 0.02,
+        '🍒': 0.04,
+        '🍋': 0.10,
+        '🔔': 0.15,
+        'other': 0.68
+      };
+
+      const rand = Math.random();
+      let cumulative = 0;
+
+      for (let symbol of Object.keys(weights)) {
+        cumulative += weights[symbol];
+        if (rand < cumulative) return symbol;
+      }
+
+      return symbols[Math.floor(Math.random() * symbols.length)];
+    }
+
     async function spin() {
-      const result = [
-        symbols[Math.floor(Math.random() * symbols.length)],
-        symbols[Math.floor(Math.random() * symbols.length)],
-        symbols[Math.floor(Math.random() * symbols.length)]
-      ];
+      totalSpent += 1;
+
+      // Determine if it's a winning pull (match 3)
+      const rollType = weightedRandomSymbol();
+      let result;
+      let win = false;
+      let payout = 0;
+
+      if (payouts[rollType]) {
+        result = [rollType, rollType, rollType];
+        win = true;
+        payout = payouts[rollType];
+        totalPaid += payout;
+      } else {
+        // Random non-winning result
+        do {
+          result = [
+            symbols[Math.floor(Math.random() * symbols.length)],
+            symbols[Math.floor(Math.random() * symbols.length)],
+            symbols[Math.floor(Math.random() * symbols.length)]
+          ];
+        } while (result[0] === result[1] && result[1] === result[2]);
+        win = false;
+      }
 
       document.getElementById('reel1').textContent = result[0];
       document.getElementById('reel2').textContent = result[1];
@@ -50,18 +131,17 @@
       const hash = await sha256(resultString + secret);
       document.getElementById('hash').textContent = 'Hash: ' + hash;
 
-      // Update the URL hash
       location.hash = hash;
 
-      const win = (result[0] === result[1] && result[1] === result[2]);
       document.getElementById('result').innerHTML = win
-        ? '<span class="win">You WIN!</span>'
-        : '<span class="lose">Try Again!</span>';
+        ? `<span class="win">You WIN $${payout.toFixed(2)}!</span>`
+        : `<span class="lose">Try Again!</span>`;
 
       const pull = {
         symbols: resultString,
         hash: hash,
         win: win,
+        payout: payout,
         time: new Date().toLocaleString()
       };
 
@@ -72,7 +152,7 @@
     function saveToHistory(pull) {
       let history = JSON.parse(localStorage.getItem('slotHistory')) || [];
       history.unshift(pull);
-      if (history.length > 20) history = history.slice(0, 20); // limit to 20 entries
+      if (history.length > 20) history = history.slice(0, 20);
       localStorage.setItem('slotHistory', JSON.stringify(history));
     }
 
@@ -80,11 +160,10 @@
       const historyList = document.getElementById('historyList');
       const history = JSON.parse(localStorage.getItem('slotHistory')) || [];
       historyList.innerHTML = history.map(entry =>
-        `<div class="entry">[${entry.time}] ${entry.symbols} - ${entry.win ? '<span class="win">WIN</span>' : '<span class="lose">LOSE</span>'} - <small>${entry.hash}</small></div>`
+        `<div class="entry">[${entry.time}] ${entry.symbols} - ${entry.win ? `<span class="win">WIN $${entry.payout.toFixed(2)}</span>` : '<span class="lose">LOSE</span>'} - <small>${entry.hash}</small></div>`
       ).join('');
     }
 
-    // Load history on page load
     window.onload = displayHistory;
   </script></body>
 </html>
