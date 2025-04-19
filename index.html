@@ -136,5 +136,10 @@
     function buildHistory(){const hs=JSON.parse(localStorage.getItem('slotHistory'))||[];const div=document.getElementById('history');div.innerHTML='';hs.forEach(e=>{const entr=document.createElement('div');entr.className='entry';entr.innerHTML=`[${e.time}] ${e.symbols} - ${e.win?`WIN $${e.p.toFixed(2)}`:'LOSE'} `;const sh=document.createElement('span');sh.className='show-hash';sh.textContent='Show Hash';const ht=document.createElement('div');ht.className='hashText';ht.textContent=e.hash;sh.onclick=()=>ht.style.display=ht.style.display==='none'?'block':'none';entr.appendChild(sh);entr.appendChild(ht);div.appendChild(entr);});}
     function toggleHistory(){const d=document.getElementById('history'),b=document.getElementById('historyToggleBtn');if(d.style.display==='none'){d.style.display='block';b.textContent='Hide History';}else{d.style.display='none';b.textContent='Show History';}}
     function cashOut(){document.getElementById('endMessage').textContent=`${playerName}, you cashed out with $${balance.toFixed(2)}`;document.getElementById('endModal').style.display='flex';document.getElementById('spinBtn').disabled=true;document.getElementById('cashOutBtn').style.display='none';}
-  </script></body>
+    // Ensure Share button works
+  document.addEventListener('DOMContentLoaded', () => {
+    const sb = document.getElementById('shareBtn');
+    if (sb) sb.addEventListener('click', toggleShare);
+  });
+</script></body>
 </html>
