@@ -129,6 +129,9 @@
       document.getElementById('spinBtn').disabled=false;
       document.getElementById('cashOutBtn').style.display='inline-block';
       updatePlayerInfo(); buildHistory();
+      // Bind Share button after game start
+      const sb = document.getElementById('shareBtn');
+      if (sb) sb.onclick = toggleShare;
     }
     function updatePlayerInfo() { document.getElementById('playerInfo').innerHTML = `${playerName}<br>Balance: $${balance.toFixed(2)}<br>Pulls Left: ${Math.floor(balance)}`; }
     async function spin() { if(balance<1) return cashOut(); cumSpent++; balance--; document.getElementById('spinBtn').disabled=true; localStorage.setItem('cumSpent',cumSpent); updatePlayerInfo(); const roll=weightedRandomSymbol();let res,win=false,p=0;const pot=payouts[roll]||0;if(pot>0&&cumPaid+pot<=cumSpent*0.9){res=[roll,roll,roll];win=true;p=pot;cumPaid+=p;localStorage.setItem('cumPaid',cumPaid);balance+=p;updatePlayerInfo();}else{do{res=rand3();}while(isWinCombo(res));}document.getElementById('spinBtn').disabled=false;['reel1','reel2','reel3'].forEach((id,i)=>document.getElementById(id).textContent=res[i]);const h=await sha256(res.join('')+secret);document.getElementById('hash').textContent=h;location.hash=h;document.getElementById('result').innerHTML=win?`<span class=\"win\">You WIN $${p.toFixed(2)}!</span>`:`<span class=\"lose\">Try Again!</span>`;saveHistory(res.join(''),h,win,p);buildHistory();if(balance<1) cashOut();}
