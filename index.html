@@ -105,11 +105,11 @@
     <button id="cashOutBtn" style="display:none;" onclick="cashOut()">Cash Out</button>
   </div>  <h1 style="color: gold; text-shadow: 2px 2px #000; margin-top: 60px;">Crypto Slot Machine</h1>  <div id="payoutChart">
     <h3>Payout Chart ($1 per spin)</h3>
-    <p>Three 7's → $1.25</p>
-    <p>Three 💎 → $1.00</p>
-    <p>Three 🍒 → $0.75</p>
-    <p>Three 🍋 → $0.50</p>
-    <p>Three 🔔 → $0.25</p>
+    <p>Three 7's → $5</p>
+    <p>Three 💎 → $4</p>
+    <p>Three 🍒 → $3</p>
+    <p>Three 🍋 → $2</p>
+    <p>Three 🔔 → $1</p>
   </div>  <div class="machine">
     <div>
       <span class="reel" id="reel1">?</span>
@@ -138,7 +138,7 @@
     </div>
   </div>  <script>
     const symbols = ['🍒', '🍋', '🔔', '💎', '7'];
-    const payouts = { '7': 1.25, '💎': 1.00, '🍒': 0.75, '🍋': 0.50, '🔔': 0.25 };
+    const payouts = { '7': 5, '💎': 4, '🍒': 3, '🍋': 2, '🔔': 1 };
     const secret = 's3cr3t-k3y';
 
     let playerName = '';
