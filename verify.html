@@ -1,0 +1,41 @@
+<!DOCTYPE html><html>
+<head>
+  <title>Slot Machine Verifier</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; margin-top: 50px; }
+    input { font-size: 18px; padding: 6px; width: 300px; }
+    button { padding: 8px 16px; font-size: 18px; margin-top: 10px; }
+    .result { margin-top: 20px; font-weight: bold; font-size: 20px; }
+    .valid { color: green; }
+    .invalid { color: red; }
+  </style>
+</head>
+<body>
+  <h1>Slot Machine Result Verifier</h1>
+  <p>Enter the 3-symbol result and hash (from the URL) to verify:</p><input id="symbols" placeholder="e.g., 🍒🍒🍒" /><br><br> <input id="hashInput" placeholder="Paste hash here" /><br><br> <button onclick="verify()">Verify Result</button>
+
+  <div class="result" id="verification"></div>  <script>
+    const secret = 's3cr3t-k3y'; // Must match the one used in the slot machine
+
+    async function sha256(message) {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(message);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    async function verify() {
+      const symbols = document.getElementById('symbols').value.trim();
+      const providedHash = document.getElementById('hashInput').value.trim();
+      const computedHash = await sha256(symbols + secret);
+
+      const resultEl = document.getElementById('verification');
+      if (providedHash === computedHash) {
+        resultEl.innerHTML = '<span class="valid">Valid result!</span>';
+      } else {
+        resultEl.innerHTML = '<span class="invalid">Invalid result.</span>';
+      }
+    }
+  </script></body>
+</html>
