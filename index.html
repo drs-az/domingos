@@ -6,6 +6,8 @@
     .reel { display: inline-block; font-size: 40px; margin: 0 15px; width: 60px; }
     .win { color: green; font-weight: bold; }
     .lose { color: red; font-weight: bold; }
+    #history { margin-top: 30px; }
+    .entry { font-size: 16px; margin: 4px 0; }
   </style>
 </head>
 <body>
@@ -18,7 +20,10 @@
   <br><br>
   <button onclick="spin()">Pull Lever</button>
   <p id="result"></p>
-  <p id="hash"></p>  <script>
+  <p id="hash"></p>  <div id="history">
+    <h3>Pull History</h3>
+    <div id="historyList"></div>
+  </div>  <script>
     const symbols = ['🍒', '🍋', '🔔', '💎', '7'];
     const secret = 's3cr3t-k3y'; // used for hash verification on server or other client
 
@@ -48,11 +53,38 @@
       // Update the URL hash
       location.hash = hash;
 
-      if (result[0] === result[1] && result[1] === result[2]) {
-        document.getElementById('result').innerHTML = '<span class="win">You WIN!</span>';
-      } else {
-        document.getElementById('result').innerHTML = '<span class="lose">Try Again!</span>';
-      }
+      const win = (result[0] === result[1] && result[1] === result[2]);
+      document.getElementById('result').innerHTML = win
+        ? '<span class="win">You WIN!</span>'
+        : '<span class="lose">Try Again!</span>';
+
+      const pull = {
+        symbols: resultString,
+        hash: hash,
+        win: win,
+        time: new Date().toLocaleString()
+      };
+
+      saveToHistory(pull);
+      displayHistory();
     }
+
+    function saveToHistory(pull) {
+      let history = JSON.parse(localStorage.getItem('slotHistory')) || [];
+      history.unshift(pull);
+      if (history.length > 20) history = history.slice(0, 20); // limit to 20 entries
+      localStorage.setItem('slotHistory', JSON.stringify(history));
+    }
+
+    function displayHistory() {
+      const historyList = document.getElementById('historyList');
+      const history = JSON.parse(localStorage.getItem('slotHistory')) || [];
+      historyList.innerHTML = history.map(entry =>
+        `<div class="entry">[${entry.time}] ${entry.symbols} - ${entry.win ? '<span class="win">WIN</span>' : '<span class="lose">LOSE</span>'} - <small>${entry.hash}</small></div>`
+      ).join('');
+    }
+
+    // Load history on page load
+    window.onload = displayHistory;
   </script></body>
 </html>
