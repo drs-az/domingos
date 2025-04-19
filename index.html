@@ -148,7 +148,7 @@
       const roll=weightedRandomSymbol();
       let res,win=false,p=0;
       const pot=payouts[roll]||0;
-      if(pot>0 && cumPaid+pot<=cumSpent*0.9){ res=[roll,roll,roll]; win=true; p=pot; cumPaid+=p; localStorage.setItem('cumPaid',cumPaid); balance+=p;} else { do{res=rand3();}while(isWinCombo(res)); }
+      if(pot>0 && cumPaid+pot<=cumSpent*0.9){ res=[roll,roll,roll]; win=true; p=pot; cumPaid+=p; localStorage.setItem('cumPaid',cumPaid); balance+=p; updatePlayerInfo(); } else { do{res=rand3();}while(isWinCombo(res)); }
 
       document.getElementById('spinBtn').disabled=false;
       document.getElementById('reel1').textContent=res[0];
