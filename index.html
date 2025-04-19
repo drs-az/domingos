@@ -1,8 +1,26 @@
-<!DOCTYPE html><html>
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Santos Slot Machine</title>
+  <meta name="theme-color" content="#222222">
+  <script type="application/manifest+json">
+  {
+    "name": "Santos Slot Machine",
+    "short_name": "Santos Slot",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#222222",
+    "theme_color": "#222222",
+    "icons": [
+      {
+        "src": "file_00000000d14861f7a5983ebc50cb04cf.png",
+        "sizes": "192x192",
+        "type": "image/png"
+      }
+    ]
+  }
+  </script>
   <style>
     html, body { height: 100%; margin: 0; padding: 0; }
     body {
@@ -13,41 +31,12 @@
       justify-content: center;
       align-items: center;
     }
-    .container {
-      width: 100%;
-      max-width: 500px;
-      padding: 10px;
-      box-sizing: border-box;
-      text-align: center;
-    }
-    .header {
-      text-align: right;
-      font-size: 1.2em;
-      margin-bottom: 10px;
-    }
-    .machine {
-      background: #333;
-      border: 5px solid #888;
-      border-radius: 15px;
-      box-shadow: 0 0 20px #000 inset;
-      padding: 20px;
-    }
-    .reels {
-      display: flex;
-      justify-content: center;
-      margin: 20px 0;
-    }
-    .reel {
-      font-size: 80px;
-      margin: 0 10px;
-      width: 80px;
-      text-align: center;
-    }
-    button {
-      font-size: 1.2em;
-      padding: 10px 20px;
-      margin: 5px;
-    }
+    .container { width: 100%; max-width: 500px; padding: 10px; box-sizing: border-box; text-align: center; }
+    .header { text-align: right; font-size: 1.2em; margin-bottom: 10px; }
+    .machine { background: #333; border: 5px solid #888; border-radius: 15px; box-shadow: 0 0 20px #000 inset; padding: 20px; }
+    .reels { display: flex; justify-content: center; margin: 20px 0; }
+    .reel { font-size: 80px; margin: 0 10px; width: 80px; text-align: center; }
+    button { font-size: 1.2em; padding: 10px 20px; margin: 5px; }
     #payoutChart p { margin: 4px 0; }
     #hash { display: none; }
     #history { margin-top: 20px; text-align: left; max-height: 200px; overflow-y: auto; }
@@ -100,39 +89,59 @@
       <button onclick="location.reload()">Play Again</button>
     </div>
   </div>  <script>
+    // Inline service worker registration
+    if ('serviceWorker' in navigator) {
+      const swCode = `
+        self.addEventListener('install', e => e.waitUntil(self.skipWaiting()));
+        self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
+        self.addEventListener('fetch', e => {
+          e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+        });
+      `;
+      navigator.serviceWorker.register(
+        'data:text/javascript;base64,' + btoa(swCode)
+      );
+    }
+    // PWA install prompt
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(() => deferredPrompt = null);
+    });
+
     const symbols = ['🍒','🍋','🔔','💎','7'];
     const payouts = {'7':5,'💎':4,'🍒':3,'🍋':2,'🔔':1};
     const secret = 's3cr3t-k3y';
-
     let cumSpent = parseFloat(localStorage.getItem('cumSpent'))||0;
     let cumPaid  = parseFloat(localStorage.getItem('cumPaid'))||0;
     let playerName = '';
     let balance = 0;
 
     async function sha256(message) {
-      const data = new TextEncoder().encode(message);
-      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-      return Array.from(new Uint8Array(hashBuffer)).map(b=>b.toString(16).padStart(2,'0')).join('');
+      const buffer = new TextEncoder().encode(message);
+      const hashBuf = await crypto.subtle.digest('SHA-256', buffer);
+      return Array.from(new Uint8Array(hashBuf)).map(b=>b.toString(16).padStart(2,'0')).join('');
     }
 
     function weightedRandomSymbol() {
       const weights = {'7':0.01,'💎':0.02,'🍒':0.04,'🍋':0.10,'🔔':0.15,'other':0.68};
-      let r=Math.random(),cum=0;
-      for(let k in weights){ cum+=weights[k]; if(r<cum) return k==='other'?symbols[Math.floor(Math.random()*symbols.length)]:k; }
+      let r=Math.random(), cum=0;
+      for (let k in weights) { cum += weights[k]; if (r<cum) return k==='other'?symbols[Math.floor(Math.random()*symbols.length)]:k; }
       return symbols[Math.floor(Math.random()*symbols.length)];
     }
-    function rand3(){ return [symbols[Math.floor(Math.random()*symbols.length)],symbols[Math.floor(Math.random()*symbols.length)],symbols[Math.floor(Math.random()*symbols.length)]]; }
-    function isWinCombo(a){ return a[0]===a[1]&&a[1]===a[2]; }
+    function rand3() { return [symbols[Math.floor(Math.random()*symbols.length)],symbols[Math.floor(Math.random()*symbols.length)],symbols[Math.floor(Math.random()*symbols.length)]]; }
+    function isWinCombo(a) { return a[0]===a[1]&&a[1]===a[2]; }
 
     function startGame() {
       playerName = document.getElementById('playerNameInput').value.trim()||'Player';
       const pulls = parseInt(document.getElementById('pullsInput').value)||0;
       balance = pulls;
-      document.getElementById('startModal').style.display='none';
-      document.getElementById('spinBtn').disabled=false;
-      document.getElementById('cashOutBtn').style.display='inline-block';
-      updatePlayerInfo();
-      buildHistory();
+      document.getElementById('startModal').style.display = 'none';
+      document.getElementById('spinBtn').disabled = false;
+      document.getElementById('cashOutBtn').style.display = 'inline-block';
+      updatePlayerInfo(); buildHistory();
     }
 
     function updatePlayerInfo() {
@@ -140,29 +149,20 @@
     }
 
     async function spin() {
-      if(balance<1){ return cashOut(); }
-      cumSpent++; balance--; document.getElementById('spinBtn').disabled=true;
-      localStorage.setItem('cumSpent', cumSpent);
-      updatePlayerInfo();
-
-      const roll=weightedRandomSymbol();
-      let res,win=false,p=0;
-      const pot=payouts[roll]||0;
-      if(pot>0 && cumPaid+pot<=cumSpent*0.9){ res=[roll,roll,roll]; win=true; p=pot; cumPaid+=p; localStorage.setItem('cumPaid',cumPaid); balance+=p; updatePlayerInfo(); } else { do{res=rand3();}while(isWinCombo(res)); }
-
-      document.getElementById('spinBtn').disabled=false;
+      if (balance<1) return cashOut();
+      cumSpent++; balance--; document.getElementById('spinBtn').disabled = true;
+      localStorage.setItem('cumSpent', cumSpent); updatePlayerInfo();
+      const roll = weightedRandomSymbol(); let res, win=false, p=0; const pot = payouts[roll]||0;
+      if (pot>0 && cumPaid+pot<=cumSpent*0.9) { res=[roll,roll,roll]; win=true; p=pot; cumPaid+=p; localStorage.setItem('cumPaid',cumPaid); balance+=p; updatePlayerInfo(); }
+      else { do { res=rand3(); } while(isWinCombo(res)); }
+      document.getElementById('spinBtn').disabled = false;
       document.getElementById('reel1').textContent=res[0];
       document.getElementById('reel2').textContent=res[1];
       document.getElementById('reel3').textContent=res[2];
-
-      const h=await sha256(res.join('')+secret);
-      document.getElementById('hash').textContent=h;
-      location.hash=h;
-      document.getElementById('result').innerHTML = win?`<span class="win">You WIN $${p.toFixed(2)}!</span>` : `<span class="lose">Try Again!</span>`;
-
-      saveHistory(res.join(''),h,win,p);
-      buildHistory();
-      if(balance<1) cashOut();
+      const h = await sha256(res.join('')+secret);
+      document.getElementById('hash').textContent = h; location.hash = h;
+      document.getElementById('result').innerHTML = win?`<span class="win">You WIN $${p.toFixed(2)}!</span>`:`<span class="lose">Try Again!</span>`;
+      saveHistory(res.join(''),h,win,p); buildHistory(); if (balance<1) cashOut();
     }
 
     function saveHistory(sym,hash,win,p) {
@@ -173,36 +173,30 @@
 
     function buildHistory() {
       const hs=JSON.parse(localStorage.getItem('slotHistory'))||[];
-      const div=document.getElementById('history'); div.innerHTML=''; div.style.display='none';
+      const div=document.getElementById('history'); div.innerHTML='';
       hs.forEach(e=>{
         const entr=document.createElement('div'); entr.className='entry';
         entr.innerHTML=`[${e.time}] ${e.symbols} - ${e.win?`WIN $${e.p.toFixed(2)}`:'LOSE'} `;
         const sh=document.createElement('span'); sh.className='show-hash'; sh.textContent='Show Hash';
         const ht=document.createElement('div'); ht.className='hashText'; ht.textContent=e.hash;
-        sh.onclick=()=>ht.style.display=ht.style.display==='none'?'block':'none';
+        sh.onclick=()=>ht.style.display = ht.style.display==='none'?'block':'none';
         entr.appendChild(sh); entr.appendChild(ht); div.appendChild(entr);
       });
     }
 
     function toggleHistory() {
-      const div=document.getElementById('history');
-      const btn=document.getElementById('historyToggleBtn');
-      if(div.style.display==='none'){ div.style.display='block'; btn.textContent='Hide History'; }
+      const div=document.getElementById('history'), btn=document.getElementById('historyToggleBtn');
+      if (div.style.display==='none') { div.style.display='block'; btn.textContent='Hide History'; }
       else { div.style.display='none'; btn.textContent='Show History'; }
     }
 
     function cashOut() {
-      document.getElementById('endMessage').textContent=`${playerName}, you cashed out with $${balance.toFixed(2)}`;
-      document.getElementById('endModal').style.display='flex';
-      document.getElementById('spinBtn').disabled=true;
-      document.getElementById('cashOutBtn').style.display='none';
+      document.getElementById('endMessage').textContent = `${playerName}, you cashed out with $${balance.toFixed(2)}`;
+      document.getElementById('endModal').style.display = 'flex';
+      document.getElementById('spinBtn').disabled = true;
+      document.getElementById('cashOutBtn').style.display = 'none';
     }
 
-    window.onload = ()=>{
-      document.getElementById('hash').style.display='none';
-      document.getElementById('history').style.display='none';
-      document.getElementById('cashOutBtn').onclick = cashOut;
-      updatePlayerInfo(); buildHistory();
-    };
+    window.onload = () => { document.getElementById('hash').style.display='none'; document.getElementById('history').style.display='none'; updatePlayerInfo(); buildHistory(); };
   </script></body>
 </html>
