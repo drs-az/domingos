@@ -13,7 +13,7 @@
     .entry { font-size: 16px; margin: 4px 0; color: #ccc; }
     .hash { display: none; font-size: 12px; color: #888; }
     .show-hash { cursor: pointer; color: #0af; text-decoration: underline; margin-left: 8px; font-size: 14px; }
-    #historyToggleBtn { margin: 10px; padding: 8px 16px; font-size: 16px; cursor: pointer; }
+    #historyToggleBtn { margin-top: 15px; padding: 8px 16px; font-size: 16px; cursor: pointer; }
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; }
     .modal { background: #333; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px #000; color: #fff; max-width: 300px; width: 80%; text-align: center; }
     .modal input { width: 100%; margin: 10px 0; padding: 8px; font-size: 16px; border: none; border-radius: 4px; }
@@ -40,10 +40,9 @@
     <br>
     <button id="spinBtn" onclick="spin()" disabled>Pull Lever</button>
     <p id="result"></p>
-    <p id="hash"></p>
-  </div><button id="historyToggleBtn" onclick="toggleHistory()">Show History</button>
+    <p id="hash"></p><button id="historyToggleBtn" onclick="toggleHistory()">Show History</button>
 
-  <div id="history" style="display:none;">
+  </div>  <div id="history" style="display:none;">
     <h3>Pull History</h3>
     <div id="historyList"></div>
   </div>  <div id="startModal" class="modal-overlay">
@@ -68,7 +67,8 @@
     let cumSpent = parseFloat(localStorage.getItem('cumSpent'))||0;
     let cumPaid  = parseFloat(localStorage.getItem('cumPaid'))||0;
 
-    let playerName = '', balance=0, pullsLeft=0;
+    let playerName = '';
+    let balance = 0;
 
     async function sha256(message) {
       const encoder = new TextEncoder();
@@ -84,42 +84,42 @@
       for(let key in weights){ cum+=weights[key]; if(rand<cum) return key==='other'?symbols[Math.floor(Math.random()*symbols.length)]:key; }
       return symbols[Math.floor(Math.random()*symbols.length)];
     }
+
     function rand3(){ return [symbols[Math.floor(Math.random()*symbols.length)],symbols[Math.floor(Math.random()*symbols.length)],symbols[Math.floor(Math.random()*symbols.length)]]; }
     function isWinCombo(arr){ return arr[0]===arr[1]&&arr[1]===arr[2]; }
 
-    function startGame(){
+    function startGame() {
       playerName = document.getElementById('playerNameInput').value.trim()||'Player';
-      pullsLeft = parseInt(document.getElementById('pullsInput').value)||0;
-      balance = pullsLeft;
+      const pulls = parseInt(document.getElementById('pullsInput').value)||0;
+      balance = pulls;
+
       document.getElementById('startModal').style.display='none';
       document.getElementById('spinBtn').disabled=false;
       document.getElementById('cashOutBtn').style.display='inline-block';
       updatePlayerInfo();
     }
 
-    function updatePlayerInfo(){
+    function updatePlayerInfo() {
       document.getElementById('playerInfo').innerHTML =
-        `${playerName}<br>Balance: $${balance.toFixed(2)}<br>Pulls Left: ${pullsLeft}`;
+        `${playerName}<br>Balance: $${balance.toFixed(2)}<br>Pulls Left: ${Math.floor(balance)}`;
     }
 
-    async function spin(){
-      if(pullsLeft<=0||balance<1){ cashOut(); return; }
-      // Deduct cost
-      cumSpent++; balance--; pullsLeft--;
+    async function spin() {
+      if (balance < 1) { cashOut(); return; }
+      cumSpent++; balance -= 1;
       localStorage.setItem('cumSpent', cumSpent);
       updatePlayerInfo();
 
       const rollType = weightedRandomSymbol();
       let result, win=false, payout=0;
       const potentialPayout = payouts[rollType]||0;
-      // Enforce 90% RTP cap
-      if(potentialPayout>0 && (cumPaid + potentialPayout) <= cumSpent * 0.9){
-        result=[rollType,rollType,rollType]; win=true; payout=potentialPayout;
+
+      if (potentialPayout > 0 && (cumPaid + potentialPayout) <= cumSpent * 0.9) {
+        result = [rollType, rollType, rollType]; win = true; payout = potentialPayout;
         cumPaid += payout; localStorage.setItem('cumPaid', cumPaid);
         balance += payout; updatePlayerInfo();
       } else {
-        // Loss path
-        do { result=rand3(); } while(isWinCombo(result));
+        do { result = rand3(); } while (isWinCombo(result));
       }
 
       document.getElementById('reel1').textContent=result[0];
@@ -139,17 +139,17 @@
       saveToHistory(pullRecord);
       displayHistory();
 
-      if(pullsLeft<=0||balance<1) cashOut();
+      if (balance < 1) cashOut();
     }
 
-    function saveToHistory(pull){
-      let history=JSON.parse(localStorage.getItem('slotHistory'))||[];
-      history.unshift(pull); if(history.length>20) history=history.slice(0,20);
+    function saveToHistory(pull) {
+      let history = JSON.parse(localStorage.getItem('slotHistory')) || [];
+      history.unshift(pull); if (history.length>20) history = history.slice(0,20);
       localStorage.setItem('slotHistory', JSON.stringify(history));
     }
 
-    function displayHistory(){
-      const history = JSON.parse(localStorage.getItem('slotHistory'))||[];
+    function displayHistory() {
+      const history = JSON.parse(localStorage.getItem('slotHistory')) || [];
       document.getElementById('historyList').innerHTML = history.map(entry =>
         `<div class="entry">[${entry.time}] ${entry.symbols} - `+
         `${entry.win?`<span class="win">WIN $${entry.payout.toFixed(2)}</span>`:'<span class="lose">LOSE</span>'}`+
@@ -158,14 +158,14 @@
       ).join('');
     }
 
-    function toggleHistory(){
+    function toggleHistory() {
       const hist = document.getElementById('history');
       const btn = document.getElementById('historyToggleBtn');
-      if(hist.style.display==='none'){ hist.style.display='block'; btn.textContent='Hide History'; }
+      if (hist.style.display==='none') { hist.style.display='block'; btn.textContent='Hide History'; }
       else { hist.style.display='none'; btn.textContent='Show History'; }
     }
 
-    function cashOut(){
+    function cashOut() {
       document.getElementById('endMessage').textContent =
         `${playerName}, you cashed out with $${balance.toFixed(2)}`;
       document.getElementById('endModal').style.display='flex';
@@ -173,7 +173,7 @@
       document.getElementById('cashOutBtn').style.display='none';
     }
 
-    window.onload = function(){
+    window.onload = function() {
       displayHistory();
       updatePlayerInfo();
     };
