@@ -82,6 +82,10 @@
 
     // Show install modal on load
     window.onload = () => {
+      // Attach Start Game button handler in case it's not bound
+      const startBtn = document.getElementById('startGameBtn');
+      if (startBtn) startBtn.onclick = startGame;
+
       document.getElementById('installModal').style.display = 'flex';
       document.getElementById('installBtnModal').onclick = async () => {
         if (deferredPrompt) {
